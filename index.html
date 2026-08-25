@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BT Logger</title>
+<meta name="theme-color" content="#17181A" />
+<meta name="description" content="Track your progress across Maths, Physics, and Chemistry." />
+<link rel="manifest" href="/manifest.json" />
+<link rel="icon" href="/icons/icon-32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="/icons/icon-192.png" sizes="192x192" type="image/png" />
+<link rel="apple-touch-icon" href="/icons/icon-180.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="BT Logger" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #17181A;
+    --panel: #212327;
+    --panel-edge: #3B3E42;
+    --ink: #EDEDED;
+    --ink-muted: #8F9296;
+    --ink-dim: #C7CACD;
+    --shadow: #000000;
+    --maths: #4CDE6E;    --maths-tint: #123420;
+    --physics: #FF5A36;  --physics-tint: #3A1810;
+    --chemistry: #38B6FF; --chemistry-tint: #10283A;
+  }
+  * { box-sizing: border-box; image-rendering: pixelated; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100vh;
+    background: var(--bg); color: var(--ink);
+    font-family: 'VT323', monospace;
+    background-image:
+      linear-gradient(var(--panel-edge) 1px, transparent 1px),
+      linear-gradient(90deg, var(--panel-edge) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: -1px -1px;
+    background-attachment: fixed;
+  }
+  .pixel { font-family: 'Press Start 2P', monospace; }
+  .mono  { font-family: 'VT323', monospace; }
+  #app { max-width: 720px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .backbtn {
+    width: 38px; height: 38px; border: 3px solid var(--ink);
+    background: var(--panel); color: var(--ink); cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    box-shadow: 4px 4px 0 var(--shadow);
+  }
+  .backbtn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+  h1.pixel { font-size: 16px; margin: 0; cursor: pointer; line-height: 1.5; color: #F2F2F2; text-shadow: 3px 3px 0 var(--shadow); }
+  .subtitle {  font-size: 18px; color: var(--ink-muted); margin-top: 6px; letter-spacing: 1px; position: relative; top: -3px; }
+  .overall-stat { text-align: right; }
+  .overall-pct.pixel { font-size: 20px; color: #F2F2F2; text-shadow: 3px 3px 0 var(--shadow); }
+  .overall-frac {  font-size: 17px; color: var(--ink-dim); margin-top: 4px; position: relative; top: -3px; }
+
+  .toolbar { display: flex; gap: 10px; margin: 16px 0 22px; flex-wrap: wrap; }
+  .toolbtn {
+    font-family: 'Press Start 2P', monospace; font-size: 9px; padding: 10px 12px;
+    border: 3px solid var(--ink); background: var(--panel); color: var(--ink);
+    cursor: pointer; box-shadow: 4px 4px 0 var(--shadow);
+  }
+  .toolbtn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+
+  .pixel-bar { display: flex; gap: 2px; }
+  .pixel-bar-seg { flex: 1; background: var(--panel-edge); border: 2px solid var(--shadow); }
+
+  .crumbs {  display: flex; flex-wrap: wrap; gap: 6px; font-size: 18px; color: var(--ink-muted); margin-bottom: 18px; align-items: center; position: relative; top: -3px; }
+  .crumbs button { background: none; border: none; padding: 0; font: inherit; color: var(--ink-muted); cursor: pointer; }
+  .crumbs button:hover:not(:disabled) { color: #F2F2F2; }
+  .crumbs button:disabled { color: var(--ink); cursor: default; }
+  .crumb-sep { color: var(--panel-edge); }
+
+  .card {
+    text-align: left; width: 100%; display: block;
+    background: var(--panel); border: 3px solid var(--panel-edge);
+    padding: 16px; cursor: pointer; font: inherit; color: inherit;
+    box-shadow: 5px 5px 0 var(--shadow); margin-bottom: 2px;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .card:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--shadow); }
+  .card:active { transform: translate(2px, 2px); box-shadow: 3px 3px 0 var(--shadow); }
+  .subject-strip { height: 8px; margin: -16px -16px 14px -16px; }
+  .card-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .card-title.pixel { font-size: 12px; line-height: 1.6; }
+  .card-title-sm.pixel { font-size: 10px; line-height: 1.6; }
+  .card-sub {  font-size: 16px; color: var(--ink-muted); margin-bottom: 10px; position: relative; top: -3px; }
+  .chapter-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .chapter-list-item {  font-size: 17px; color: var(--ink-muted); position: relative; top: -3px; }
+  .stat {  font-size: 17px; color: var(--ink-dim); position: relative; top: -3px; }
+
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  .subject-title.pixel { font-size: 15px; }
+
+  .chapter-total-box { background: var(--panel); border: 3px solid var(--panel-edge); padding: 18px; margin-bottom: 18px; box-shadow: 5px 5px 0 var(--shadow); }
+
+  .ex-card { background: var(--panel); border: 3px solid var(--panel-edge); padding: 16px; box-shadow: 5px 5px 0 var(--shadow); }
+  .ex-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+  .ex-name.pixel { font-size: 11px; margin-bottom: 6px; display: block; }
+  .ex-sub {  font-size: 15px; color: var(--ink-muted); position: relative; top: -3px; }
+  .ex-controls { display: flex; align-items: center; gap: 8px; }
+  .stepbtn {
+    width: 34px; height: 34px; border: 3px solid var(--ink); font-family: 'Press Start 2P', monospace;
+    cursor: pointer; font-size: 14px; box-shadow: 3px 3px 0 var(--shadow);
+  }
+  .stepbtn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow); }
+  .ex-input {
+    width: 60px; text-align: center; font-family: 'VT323', monospace; font-size: 20px;
+    padding: 6px; border: 3px solid var(--panel-edge); background: var(--bg); color: var(--ink);
+  }
+  .ex-of {  font-size: 18px; color: var(--ink-dim); position: relative; top: -3px; }
+
+  .heatmap-note {  font-size: 16px; color: var(--ink-muted); margin-bottom: 20px; position: relative; top: -3px; }
+  .heatmap-subject { margin-bottom: 30px; }
+  .heatmap-subject-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+  .heatmap-subject-name.pixel { font-size: 13px; display: flex; align-items: center; gap: 10px; }
+  .heatmap-dot { width: 12px; height: 12px; flex-shrink: 0; border: 2px solid var(--shadow); }
+  .heatmap-legend { display: flex; align-items: center; gap: 4px; }
+  .heatmap-legend-label {  font-size: 14px; color: var(--ink-muted); position: relative; top: -3px; }
+  .heatmap-legend-swatch { width: 14px; height: 14px; border: 2px solid var(--shadow); flex-shrink: 0; }
+  .heatmap-legend-swatch.empty { background: var(--panel); }
+  .heatmap-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .heatmap-modlabel {  font-size: 15px; color: var(--ink-muted); width: 26px; flex-shrink: 0; position: relative; top: -3px; }
+  .heatmap-tiles { display: flex; gap: 3px; flex-wrap: wrap; }
+  .heatmap-tile { width: 24px; height: 24px; border: 2px solid var(--shadow); cursor: pointer; padding: 0; }
+  .heatmap-tile.empty { background: var(--panel); }
+
+  input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const DEFAULTS = { ex1: 50, ex2: 50, ex3: 15, ex4: 60 };
+function ch(name, overrides = {}) {
+  return { name, ...DEFAULTS, ...overrides };
+}
+
+const CURRICULUM = {
+  Maths: [
+    { chapters: [ // Module 1
+      ch("Basic Mathematic", { ex1: 55, ex2: 55, ex3: 0, ex4: 0 }),
+      ch("Logarithms", { ex1: 30, ex2: 30, ex3: 15, ex4: 30 }),
+      ch("Sequence and Series", { ex1: 90, ex2: 70, ex3: 15, ex4: 60 }),
+      ch("Trigonometric Ratios and Identities", { ex1: 90, ex2: 60, ex3: 15, ex4: 70 }),
+      ch("Trignometric Equations", { ex1: 45, ex2: 50, ex3: 10, ex4: 55 }),
+      ch("Solution of Triangles", { ex1: 50, ex2: 50, ex3: 15, ex4: 65 }),
+      ch("Straight Lines", { ex1: 110, ex2: 110, ex3: 15, ex4: 70 }),
+    ] },
+    { chapters: [ // Module 2
+      ch("Sets and Relations", { ex1: 55, ex2: 10, ex3: 0, ex4: 0 }),
+      ch("Quadratic Equations", { ex1: 80, ex2: 60, ex3: 15, ex4: 70 }),
+      ch("Complex Numbers", { ex1: 90, ex2: 90, ex3: 15, ex4: 80 }),
+      ch("Permutations and Combinations", { ex1: 60, ex2: 80, ex3: 15, ex4: 65 }),
+      ch("Binomial Theorem", { ex1: 60, ex2: 70, ex3: 15, ex4: 65 }),
+    ] },
+    { chapters: [ // Module 3
+      ch("Circles", { ex1: 85, ex2: 75, ex3: 15, ex4: 65 }),
+      ch("Parabola", { ex1: 70, ex2: 90, ex3: 15, ex4: 64 }),
+      ch("Ellipse", { ex1: 60, ex2: 55, ex3: 15, ex4: 65 }),
+      ch("Hyperbola", { ex1: 70, ex2: 50, ex3: 15, ex4: 70 }),
+    ] },
+    { chapters: [ // Module 4
+      ch("Indefinite Integration", { ex1: 100, ex2: 80, ex3: 15, ex4: 70 }),
+      ch("Definite Integration", { ex1: 75, ex2: 95, ex3: 15, ex4: 75 }),
+      ch("Area under Curve", { ex1: 60, ex2: 50, ex3: 15, ex4: 50 }),
+      ch("Differential Equations", { ex1: 70, ex2: 70, ex3: 15, ex4: 60 }),
+      ch("Probability", { ex1: 100, ex2: 75, ex3: 15, ex4: 75 }),
+      ch("Statistics", { ex1: 45, ex2: 40, ex3: 10, ex4: 0 }),
+    ] },
+    { chapters: [ // Module 5
+      ch("Functions", { ex1: 65, ex2: 70, ex3: 15, ex4: 75 }),
+      ch("Inverse Trigonometric Functions", { ex1: 40, ex2: 40, ex3: 15, ex4: 60 }),
+      ch("Limits, Continuity and Differentiability", { ex1: 85, ex2: 80, ex3: 15, ex4: 75 }),
+      ch("Methods of Differentiation", { ex1: 65, ex2: 65, ex3: 15, ex4: 65 }),
+      ch("Application of Differentiation", { ex1: 90, ex2: 75, ex3: 15, ex4: 75 }),
+    ] },
+    { chapters: [ // Module 6
+      ch("Determinants", { ex1: 45, ex2: 50, ex3: 15, ex4: 60 }),
+      ch("Matrices", { ex1: 55, ex2: 55, ex3: 15, ex4: 70 }),
+      ch("Vectors", { ex1: 120, ex2: 70, ex3: 15, ex4: 55 }),
+      ch("3 Dimensional Geometry", { ex1: 70, ex2: 60, ex3: 15, ex4: 70 }),
+    ] },
+  ],
+  Physics: [
+    { chapters: [ // Module 1
+      ch("Mathematics for Physics", { ex1: 110, ex2: 85, ex3: 15, ex4: 0 }),
+      ch("Units, Dimensions and Error Analysis", { ex1: 70, ex2: 40, ex3: 15, ex4: 35 }),
+      ch("Kinematics", { ex1: 65, ex2: 80, ex3: 15, ex4: 75 }),
+      ch("Newton's Laws of Motion", { ex1: 45, ex2: 45, ex3: 15, ex4: 45 }),
+      ch("Friction", { ex1: 40, ex2: 45, ex3: 10, ex4: 65 }),
+      ch("Circular Motion", { ex1: 30, ex2: 30, ex3: 10, ex4: 45 }),
+    ] },
+    { chapters: [ // Module 2
+      ch("Work, Power, Energy", { ex1: 45, ex2: 45, ex3: 15, ex4: 60 }),
+      ch("Center of Mass & Conservation of Linear Momentum", { ex1: 35, ex2: 50, ex3: 15, ex4: 60 }),
+      ch("Rotational Dynamics", { ex1: 65, ex2: 65, ex3: 15, ex4: 60 }),
+      ch("Gravitation", { ex1: 45, ex2: 40, ex3: 15, ex4: 50 }),
+      ch("Fluids", { ex1: 60, ex2: 40, ex3: 15, ex4: 45 }),
+      ch("Simple Harmonic Motion", { ex1: 70, ex2: 60, ex3: 15, ex4: 65 }),
+    ] },
+    { chapters: [ // Module 3
+      ch("Wave Motion", { ex1: 70, ex2: 65, ex3: 15, ex4: 70 }),
+      ch("Mechanical Propertie of Matter", { ex1: 55, ex2: 50, ex3: 15, ex4: 50 }),
+      ch("Thermal Expansion and Calorimetry", { ex1: 40, ex2: 30, ex3: 10, ex4: 35 }),
+      ch("Heat Transfer", { ex1: 35, ex2: 50, ex3: 10, ex4: 45 }),
+      ch("Kinetic Theory of Gases", { ex1: 60, ex2: 30, ex3: 10, ex4: 30 }),
+      ch("Thermodynamics", { ex1: 55, ex2: 50, ex3: 15, ex4: 50 }),
+    ] },
+    { chapters: [ // Module 4
+      ch("Electrostatics", { ex1: 60, ex2: 65, ex3: 15, ex4: 60 }),
+      ch("Current Electricity", { ex1: 55, ex2: 55, ex3: 15, ex4: 60 }),
+      ch("Capacitance", { ex1: 65, ex2: 60, ex3: 15, ex4: 50 }),
+    ] },
+    { chapters: [ // Module 5
+      ch("Magnetic Field", { ex1: 50, ex2: 60, ex3: 15, ex4: 60 }),
+      ch("Magnetism and Matter", { ex1: 40, ex2: 25, ex3: 10, ex4: 0 }),
+      ch("Electromagnetic Induction", { ex1: 55, ex2: 65, ex3: 15, ex4: 55 }),
+      ch("Alternating Current", { ex1: 55, ex2: 40, ex3: 15, ex4: 55 }),
+      ch("Electromagnetic Waves", { ex1: 50, ex2: 35, ex3: 10, ex4: 0 }),
+    ] },
+    { chapters: [ // Module 6
+      ch("Geometrical Optics", { ex1: 55, ex2: 85, ex3: 15, ex4: 85 }),
+      ch("Wave Optics", { ex1: 65, ex2: 50, ex3: 15, ex4: 50 }),
+      ch("Modern Physics", { ex1: 80, ex2: 85, ex3: 15, ex4: 80 }),
+      ch("Semiconductor Devices", { ex1: 45, ex2: 30, ex3: 10, ex4: 0 }),
+    ] },
+  ],
+  Chemistry: [
+    { chapters: [ // Module 1
+      ch("Mole Concept", { ex1: 70, ex2: 50, ex3: 15, ex4: 60 }),
+      ch("Atomic Structure", { ex1: 70, ex2: 55, ex3: 15, ex4: 70 }),
+      ch("Periodic Properties", { ex1: 60, ex2: 50, ex3: 15, ex4: 60 }),
+      ch("Chemical Bonding", { ex1: 70, ex2: 55, ex3: 15, ex4: 70 }),
+      ch("Redox Reactions", { ex1: 55, ex2: 45, ex3: 15, ex4: 50 }),
+      ch("Gaseous State", { ex1: 50, ex2: 60, ex3: 15, ex4: 60 }),
+    ] },
+    { chapters: [ // Module 2
+      ch("Thermodynamics", { ex1: 70, ex2: 75, ex3: 15, ex4: 65 }),
+      ch("Chemical Equilibrium", { ex1: 55, ex2: 50, ex3: 15, ex4: 55 }),
+      ch("Ionic Equilibrium", { ex1: 60, ex2: 55, ex3: 15, ex4: 65 }),
+      ch("IUPAC Nomenclature", { ex1: 60, ex2: 55, ex3: 15, ex4: 55 }),
+      ch("Isomerism", { ex1: 60, ex2: 50, ex3: 15, ex4: 75 }),
+    ] },
+    { chapters: [ // Module 3
+      ch("General Organic Chemistry", { ex1: 80, ex2: 65, ex3: 15, ex4: 70 }),
+      ch("Hydrocarbons", { ex1: 60, ex2: 50, ex3: 15, ex4: 65 }),
+      ch("Aromatic Compounds", { ex1: 40, ex2: 40, ex3: 10, ex4: 50 }),
+      ch("Environmental Chemistry", { ex1: 55, ex2: 10, ex3: 50, ex4: 0 }),
+      ch("Hydrogen and Its Compounds", { ex1: 40, ex2: 30, ex3: 8, ex4: 40 }),
+      ch("S-Block Elements", { ex1: 50, ex2: 50, ex3: 10, ex4: 55 }),
+      ch("P-Block (Part-I)", { ex1: 70, ex2: 50, ex3: 15, ex4: 65 }),
+    ] },
+    { chapters: [ // Module 4
+      ch("Solid State", { ex1: 55, ex2: 55, ex3: 15, ex4: 55 }),
+      ch("Solutions & Colligative Properties", { ex1: 60, ex2: 50, ex3: 15, ex4: 55 }),
+      ch("Electrochemistry", { ex1: 65, ex2: 60, ex3: 15, ex4: 75 }),
+      ch("Chemical Kinetics", { ex1: 70, ex2: 55, ex3: 15, ex4: 65 }),
+      ch("Surface Chemistry", { ex1: 50, ex2: 45, ex3: 15, ex4: 50 }),
+      ch("Alkyl and Aryl Halides", { ex1: 70, ex2: 60, ex3: 15, ex4: 65 }),
+    ] },
+    { chapters: [ // Module 5
+      ch("Alcohols, Ethers and Phenols", { ex1: 60, ex2: 60, ex3: 15, ex4: 70 }),
+      ch("Aldehydes and Ketones", { ex1: 65, ex2: 60, ex3: 15, ex4: 75 }),
+      ch("Carboxylic Acid & its Derivatives", { ex1: 60, ex2: 55, ex3: 15, ex4: 75 }),
+      ch("Nitrogen Containing Compounds", { ex1: 50, ex2: 45, ex3: 15, ex4: 75 }),
+      ch("Biomolecules and Polymers", { ex1: 65, ex2: 50, ex3: 15, ex4: 70 }),
+    ] },
+    { chapters: [ // Module 6
+      ch("Principles of Practical Chemistry & Chemistry in Everyday Life", { ex1: 75, ex2: 75, ex3: 15, ex4: 75 }),
+      ch("P-Block (Part-II)", { ex1: 100, ex2: 100, ex3: 15, ex4: 80 }),
+      ch("Chemistry of d & f-block", { ex1: 65, ex2: 60, ex3: 15, ex4: 50 }),
+      ch("Metallurgy", { ex1: 55, ex2: 50, ex3: 15, ex4: 60 }),
+      ch("Coordination Compounds", { ex1: 65, ex2: 65, ex3: 15, ex4: 70 }),
+      ch("Qualitative Analysis", { ex1: 70, ex2: 70, ex3: 15, ex4: 79 }),
+    ] },
+  ],
+};
+const SUBJECTS = Object.keys(CURRICULUM);
+/* ============================================================ */
+
+const EXERCISE_META = [
+  { key: "ex1", label: "Ex-1" },
+  { key: "ex2", label: "Ex-2" },
+  { key: "ex3", label: "Ex-3" },
+  { key: "ex4", label: "Ex-4" },
+];
+
+const THEME = {
+  Maths: { accent: "var(--maths)", tint: "var(--maths-tint)", cssVar: "maths" },
+  Physics: { accent: "var(--physics)", tint: "var(--physics-tint)", cssVar: "physics" },
+  Chemistry: { accent: "var(--chemistry)", tint: "var(--chemistry-tint)", cssVar: "chemistry" },
+};
+
+function exercisesForChapter(chConfig) {
+  return EXERCISE_META.map((e) => ({ ...e, sub: e.label.toLowerCase(), total: chConfig[e.key] }));
+}
+function chapterTotal(chConfig) {
+  return exercisesForChapter(chConfig).reduce((s, e) => s + e.total, 0);
+}
+function getChapter(subject, moduleIndex, chapterIdx) {
+  return CURRICULUM[subject][moduleIndex - 1].chapters[chapterIdx - 1];
+}
+function moduleCount(subject) { return CURRICULUM[subject].length; }
+function chapterCount(subject, moduleIndex) { return CURRICULUM[subject][moduleIndex - 1].chapters.length; }
+function totalChapterCount(subject) { return CURRICULUM[subject].reduce((s, m) => s + m.chapters.length, 0); }
+
+function makeEmptyProgress() {
+  const p = {};
+  SUBJECTS.forEach((s) => {
+    p[s] = {};
+    CURRICULUM[s].forEach((mod, mi) => {
+      const m = mi + 1;
+      p[s][m] = {};
+      mod.chapters.forEach((_, ci) => {
+        const c = ci + 1;
+        p[s][m][c] = { ex1: 0, ex2: 0, ex3: 0, ex4: 0 };
+      });
+    });
+  });
+  return p;
+}
+
+function chapterAgg(progress, subject, moduleIndex, chapterIdx) {
+  const chConfig = getChapter(subject, moduleIndex, chapterIdx);
+  const exs = exercisesForChapter(chConfig);
+  let done = 0;
+  exs.forEach((e) => (done += progress[subject]?.[moduleIndex]?.[chapterIdx]?.[e.key] ?? 0));
+  return { done, total: chapterTotal(chConfig), name: chConfig.name };
+}
+function moduleAgg(progress, subject, moduleIndex) {
+  let done = 0, total = 0;
+  const count = chapterCount(subject, moduleIndex);
+  for (let c = 1; c <= count; c++) {
+    const a = chapterAgg(progress, subject, moduleIndex, c);
+    done += a.done; total += a.total;
+  }
+  return { done, total, count };
+}
+function subjectAgg(progress, subject) {
+  let done = 0, total = 0;
+  const count = moduleCount(subject);
+  for (let m = 1; m <= count; m++) {
+    const a = moduleAgg(progress, subject, m);
+    done += a.done; total += a.total;
+  }
+  return { done, total };
+}
+function overallAgg(progress) {
+  let done = 0, total = 0;
+  SUBJECTS.forEach((s) => { const a = subjectAgg(progress, s); done += a.done; total += a.total; });
+  return { done, total };
+}
+function pct(done, total) { return total === 0 ? 0 : Math.round((done / total) * 100); }
+
+/* ---------------- persistence ---------------- */
+const STORAGE_KEY = "bt-module-log-progress-v1";
+
+function loadProgress() {
+  const fresh = makeEmptyProgress();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return fresh;
+    const parsed = JSON.parse(raw);
+    SUBJECTS.forEach((s) => {
+      CURRICULUM[s].forEach((mod, mi) => {
+        const m = mi + 1;
+        mod.chapters.forEach((chConfig, ci) => {
+          const c = ci + 1;
+          const exs = exercisesForChapter(chConfig);
+          exs.forEach((e) => {
+            const v = parsed?.[s]?.[m]?.[c]?.[e.key];
+            if (typeof v === "number") fresh[s][m][c][e.key] = Math.max(0, Math.min(e.total, v));
+          });
+        });
+      });
+    });
+  } catch (err) {
+    console.warn("Could not load saved progress, starting fresh.", err);
+  }
+  return fresh;
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+  } catch (err) {
+    console.error("Save failed", err);
+  }
+}
+
+function exportProgress() {
+  const blob = new Blob([JSON.stringify(state.progress, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `bt-module-log-progress-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importProgressFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      const merged = makeEmptyProgress();
+      SUBJECTS.forEach((s) => {
+        CURRICULUM[s].forEach((mod, mi) => {
+          const m = mi + 1;
+          mod.chapters.forEach((chConfig, ci) => {
+            const c = ci + 1;
+            const exs = exercisesForChapter(chConfig);
+            exs.forEach((e) => {
+              const v = parsed?.[s]?.[m]?.[c]?.[e.key];
+              if (typeof v === "number") merged[s][m][c][e.key] = Math.max(0, Math.min(e.total, v));
+            });
+          });
+        });
+      });
+      state.progress = merged;
+      saveProgress();
+      render();
+      alert("Progress imported successfully.");
+    } catch (err) {
+      alert("Could not read that file — make sure it's a progress export from this tool.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------------- state & nav ---------------- */
+const state = {
+  progress: loadProgress(),
+  nav: { level: "home", subject: null, moduleIndex: null, chapterIdx: null },
+};
+
+function goHome() { state.nav = { level: "home", subject: null, moduleIndex: null, chapterIdx: null }; render(); }
+function goSubject(subject) { state.nav = { level: "subject", subject, moduleIndex: null, chapterIdx: null }; render(); }
+function goModule(subject, moduleIndex) { state.nav = { level: "module", subject, moduleIndex, chapterIdx: null }; render(); }
+function goChapter(subject, moduleIndex, chapterIdx) { state.nav = { level: "chapter", subject, moduleIndex, chapterIdx }; render(); }
+function goHeatmap() { state.nav = { level: "heatmap", subject: null, moduleIndex: null, chapterIdx: null }; render(); }
+function goBack() {
+  const n = state.nav;
+  if (n.level === "chapter") goModule(n.subject, n.moduleIndex);
+  else if (n.level === "module") goSubject(n.subject);
+  else if (n.level === "subject") goHome();
+  else if (n.level === "heatmap") goHome();
+}
+
+function setExercise(subject, moduleIndex, chapterIdx, key, value, total) {
+  const clamped = Math.max(0, Math.min(total, isNaN(value) ? 0 : value));
+  state.progress[subject][moduleIndex][chapterIdx][key] = clamped;
+  saveProgress();
+  render();
+}
+/* ---------------- rendering (retro skin) ---------------- */
+function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  Object.entries(attrs).forEach(([k, v]) => {
+    if (k === "class") node.className = v;
+    else if (k === "text") node.textContent = v;
+    else if (k === "title") node.title = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  });
+  (Array.isArray(children) ? children : [children]).forEach((c) => {
+    if (c) node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  });
+  return node;
+}
+
+function pixelBar(done, total, accent, segments = 12, height = 16) {
+  const p = pct(done, total);
+  const filled = Math.round((p / 100) * segments);
+  const wrap = el("div", { class: "pixel-bar", style: `height:${height}px` });
+  for (let i = 0; i < segments; i++) {
+    wrap.appendChild(el("div", {
+      class: "pixel-bar-seg",
+      style: i < filled ? `background:${accent}` : "",
+    }));
+  }
+  return wrap;
+}
+
+function statLine(done, total) {
+  return el("span", { class: "stat", text: `${done}/${total} \u00b7 ${pct(done, total)}%` });
+}
+
+function crumbs(items, onJump) {
+  const wrap = el("div", { class: "crumbs" });
+  items.forEach((label, i) => {
+    if (i > 0) wrap.appendChild(el("span", { class: "crumb-sep", text: "/" }));
+    const btn = el("button", { text: label.toUpperCase() });
+    if (i === items.length - 1) btn.disabled = true;
+    else btn.addEventListener("click", () => onJump(i));
+    wrap.appendChild(btn);
+  });
+  return wrap;
+}
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  const overall = overallAgg(state.progress);
+
+  const headerLeft = el("div", { class: "header-left" });
+  if (state.nav.level !== "home") {
+    headerLeft.appendChild(el("button", { class: "backbtn", "aria-label": "Back", onclick: goBack, text: "\u2190" }));
+  }
+  const titleBlock = el("div", { style: "cursor:pointer", onclick: goHome }, [
+    el("h1", { class: "pixel", text: "BT MODULE LOG" }),
+    el("div", { class: "subtitle", text: "MATHS \u00b7 PHYSICS \u00b7 CHEMISTRY" }),
+  ]);
+  headerLeft.appendChild(titleBlock);
+
+  const overallStat = el("div", { class: "overall-stat" }, [
+    el("div", { class: "overall-pct pixel", text: `${pct(overall.done, overall.total)}%` }),
+    el("div", { class: "overall-frac", text: `${overall.done}/${overall.total}` }),
+  ]);
+
+  app.appendChild(el("div", { class: "header" }, [headerLeft, overallStat]));
+  app.appendChild(pixelBar(overall.done, overall.total, "#F2F2F2", 20, 10));
+
+  const importInput = el("input", { type: "file", accept: "application/json", id: "import-input" });
+  importInput.addEventListener("change", (e) => {
+    if (e.target.files && e.target.files[0]) importProgressFromFile(e.target.files[0]);
+    e.target.value = "";
+  });
+  const toolbar = el("div", { class: "toolbar" }, [
+    el("button", { class: "toolbtn", text: "HEATMAP", onclick: goHeatmap }),
+    el("button", { class: "toolbtn", text: "EXPORT", onclick: exportProgress }),
+    el("button", { class: "toolbtn", text: "IMPORT", onclick: () => importInput.click() }),
+    importInput,
+  ]);
+  app.appendChild(toolbar);
+
+  const n = state.nav;
+  if (n.level === "home") app.appendChild(renderHome());
+  else if (n.level === "subject") app.appendChild(renderSubject(n.subject));
+  else if (n.level === "module") app.appendChild(renderModule(n.subject, n.moduleIndex));
+  else if (n.level === "chapter") app.appendChild(renderChapter(n.subject, n.moduleIndex, n.chapterIdx));
+  else if (n.level === "heatmap") app.appendChild(renderHeatmap());
+}
+
+function renderHome() {
+  const stack = el("div", { class: "stack" });
+  SUBJECTS.forEach((s) => {
+    const agg = subjectAgg(state.progress, s);
+    const t = THEME[s];
+    const card = el("button", { class: "card", onclick: () => goSubject(s) }, [
+      el("div", { class: "subject-strip", style: `background:${t.accent}` }),
+      el("div", { class: "card-row" }, [
+        el("span", { class: "card-title subject-title pixel", text: s.toUpperCase() }),
+        statLine(agg.done, agg.total),
+      ]),
+      el("div", { class: "card-sub", text: `${moduleCount(s)} MODULES \u00b7 ${totalChapterCount(s)} CHAPTERS` }),
+      pixelBar(agg.done, agg.total, t.accent),
+    ]);
+    stack.appendChild(card);
+  });
+  return stack;
+}
+
+function renderSubject(subject) {
+  const wrap = el("div");
+  wrap.appendChild(crumbs(["Home", subject], (i) => { if (i === 0) goHome(); }));
+  const stack = el("div", { class: "stack" });
+  const t = THEME[subject];
+  CURRICULUM[subject].forEach((mod, mi) => {
+    const m = mi + 1;
+    const agg = moduleAgg(state.progress, subject, m);
+    const chapterList = el("div", { class: "chapter-list" });
+    mod.chapters.forEach((chConfig, ci) => {
+      chapterList.appendChild(el("span", { class: "chapter-list-item", text: `${ci + 1}. ${chConfig.name}` }));
+    });
+    stack.appendChild(el("button", { class: "card", onclick: () => goModule(subject, m) }, [
+      el("div", { class: "subject-strip", style: `background:${t.accent}` }),
+      el("div", { class: "card-row" }, [
+        el("span", { class: "card-title-sm pixel", text: `MODULE ${m}` }),
+        statLine(agg.done, agg.total),
+      ]),
+      chapterList,
+      pixelBar(agg.done, agg.total, t.accent),
+    ]));
+  });
+  wrap.appendChild(stack);
+  return wrap;
+}
+
+function renderModule(subject, moduleIndex) {
+  const wrap = el("div");
+  wrap.appendChild(crumbs(["Home", subject, `Module ${moduleIndex}`], (i) => {
+    if (i === 0) goHome(); else if (i === 1) goSubject(subject);
+  }));
+  const stack = el("div", { class: "stack" });
+  const t = THEME[subject];
+  const mod = CURRICULUM[subject][moduleIndex - 1];
+  mod.chapters.forEach((chConfig, ci) => {
+    const c = ci + 1;
+    const agg = chapterAgg(state.progress, subject, moduleIndex, c);
+    stack.appendChild(el("button", { class: "card", onclick: () => goChapter(subject, moduleIndex, c) }, [
+      el("div", { class: "subject-strip", style: `background:${t.accent}` }),
+      el("div", { class: "card-row" }, [
+        el("span", { class: "card-title-sm pixel", text: chConfig.name.toUpperCase() }),
+        statLine(agg.done, agg.total),
+      ]),
+      pixelBar(agg.done, agg.total, t.accent),
+    ]));
+  });
+  wrap.appendChild(stack);
+  return wrap;
+}
+
+function renderChapter(subject, moduleIndex, chapterIdx) {
+  const wrap = el("div");
+  const chConfig = getChapter(subject, moduleIndex, chapterIdx);
+  const exs = exercisesForChapter(chConfig);
+  const agg = chapterAgg(state.progress, subject, moduleIndex, chapterIdx);
+  const t = THEME[subject];
+
+  wrap.appendChild(crumbs(["Home", subject, `Module ${moduleIndex}`, chConfig.name], (i) => {
+    if (i === 0) goHome(); else if (i === 1) goSubject(subject); else if (i === 2) goModule(subject, moduleIndex);
+  }));
+
+  wrap.appendChild(el("div", { class: "chapter-total-box" }, [
+    el("div", { class: "card-row" }, [
+      el("span", { class: "card-title-sm pixel", text: `${chConfig.name.toUpperCase()} TOTAL` }),
+      statLine(agg.done, agg.total),
+    ]),
+    pixelBar(agg.done, agg.total, t.accent),
+  ]));
+
+  const stack = el("div", { class: "stack" });
+  exs.forEach((e) => {
+    const done = state.progress[subject][moduleIndex][chapterIdx][e.key];
+
+    const numInput = el("input", { class: "ex-input", type: "number", min: "0", max: String(e.total) });
+    numInput.value = done;
+    numInput.addEventListener("change", (ev) => {
+      setExercise(subject, moduleIndex, chapterIdx, e.key, parseInt(ev.target.value, 10), e.total);
+    });
+
+    const minusBtn = el("button", {
+      class: "stepbtn", style: `background:${t.tint}; color:${t.accent}; border-color:${t.accent}`, text: "\u2212",
+      onclick: () => setExercise(subject, moduleIndex, chapterIdx, e.key, done - 1, e.total),
+    });
+    const plusBtn = el("button", {
+      class: "stepbtn", style: `background:${t.tint}; color:${t.accent}; border-color:${t.accent}`, text: "+",
+      onclick: () => setExercise(subject, moduleIndex, chapterIdx, e.key, done + 1, e.total),
+    });
+
+    const card = el("div", { class: "ex-card" }, [
+      el("div", { class: "ex-top" }, [
+        el("div", {}, [
+          el("span", { class: "ex-name pixel", text: e.label.toUpperCase() }),
+          el("div", { class: "ex-sub", text: `${e.sub} \u00b7 ${e.total} qs` }),
+        ]),
+        el("div", { class: "ex-controls" }, [
+          minusBtn, numInput,
+          el("span", { class: "ex-of", text: `/${e.total}` }),
+          plusBtn,
+        ]),
+      ]),
+      pixelBar(done, e.total, t.accent, 12, 12),
+    ]);
+    stack.appendChild(card);
+  });
+  wrap.appendChild(stack);
+  return wrap;
+}
+
+function buildLegend(t) {
+  const steps = [0, 25, 50, 75, 100];
+  const legend = el("div", { class: "heatmap-legend" });
+  legend.appendChild(el("span", { class: "heatmap-legend-label", text: "0%" }));
+  steps.forEach((p) => {
+    const swatchClass = p <= 0 ? "heatmap-legend-swatch empty" : "heatmap-legend-swatch";
+    const swatchStyle = p <= 0
+      ? ""
+      : `background: color-mix(in srgb, ${t.accent} ${Math.max(18, p)}%, var(--panel) ${100 - Math.max(18, p)}%);`;
+    legend.appendChild(el("span", { class: swatchClass, style: swatchStyle }));
+  });
+  legend.appendChild(el("span", { class: "heatmap-legend-label", text: "100%" }));
+  return legend;
+}
+
+function renderHeatmap() {
+  const wrap = el("div");
+  wrap.appendChild(crumbs(["Home", "Heatmap"], (i) => { if (i === 0) goHome(); }));
+  wrap.appendChild(el("div", { class: "heatmap-note", text: "DARKER TILE = MORE COMPLETE. TAP TO JUMP." }));
+
+  SUBJECTS.forEach((subject) => {
+    const t = THEME[subject];
+    const block = el("div", { class: "heatmap-subject" });
+    block.appendChild(el("div", { class: "heatmap-subject-title" }, [
+      el("div", { class: "heatmap-subject-name pixel" }, [
+        el("span", { class: "heatmap-dot", style: `background:${t.accent}` }),
+        el("span", { text: subject.toUpperCase() }),
+      ]),
+      buildLegend(t),
+    ]));
+    CURRICULUM[subject].forEach((mod, mi) => {
+      const m = mi + 1;
+      const row = el("div", { class: "heatmap-row" });
+      row.appendChild(el("span", { class: "heatmap-modlabel", text: `M${m}` }));
+      const tiles = el("div", { class: "heatmap-tiles" });
+      mod.chapters.forEach((chConfig, ci) => {
+        const c = ci + 1;
+        const agg = chapterAgg(state.progress, subject, m, c);
+        const p = pct(agg.done, agg.total);
+        const tileClass = p <= 0 ? "heatmap-tile empty" : "heatmap-tile";
+        const tileStyle = p <= 0
+          ? ""
+          : `background: color-mix(in srgb, ${t.accent} ${Math.max(18, p)}%, var(--panel) ${100 - Math.max(18, p)}%);`;
+        tiles.appendChild(el("button", {
+          class: tileClass,
+          style: tileStyle,
+          title: `${chConfig.name} \u2014 ${p}%`,
+          onclick: () => goChapter(subject, m, c),
+        }));
+      });
+      row.appendChild(tiles);
+      block.appendChild(row);
+    });
+    wrap.appendChild(block);
+  });
+  return wrap;
+}
+
+render();
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
