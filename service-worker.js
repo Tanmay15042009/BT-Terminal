@@ -1,14 +1,14 @@
-// BT Ledger service worker — cache-first for offline/instant loads.
+// BT Logger service worker — cache-first for offline/instant loads.
 // Bump this version string whenever you deploy a change so old caches get replaced.
-const CACHE_NAME = "bt-ledger-v1";
+const CACHE_NAME = "bt-logger-v1";
 
 const PRECACHE_URLS = [
-  "/",
-  "/index.html",
-  "/manifest.json",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
-  "/icons/icon-maskable-512.png"
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-512.png"
 ];
 
 self.addEventListener("install", (event) => {
