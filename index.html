@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/png" href="C:\Tanmay\1. BT Notes(11.08)\BT Terminal\logo.jpg" />
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>BT Logger</title>
-<meta name="theme-color" content="#17181A" />
-<meta name="description" content="Track your progress across Maths, Physics, and Chemistry." />
-<link rel="manifest" href="manifest.json" />
-<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png" />
-<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
-<link rel="apple-touch-icon" href="icons/icon-180.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="BT Logger" />
+<title>BT Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
@@ -101,6 +93,10 @@
   .chapter-total-box { background: var(--panel); border: 3px solid var(--panel-edge); padding: 18px; margin-bottom: 18px; box-shadow: 5px 5px 0 var(--shadow); }
 
   .ex-card { background: var(--panel); border: 3px solid var(--panel-edge); padding: 16px; box-shadow: 5px 5px 0 var(--shadow); }
+  .pyq-card {
+    background: transparent; border: 3px dashed var(--panel-edge); padding: 16px; margin-top: 14px;
+  }
+  .pyq-input { width: 60px; }
   .ex-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
   .ex-name.pixel { font-size: 11px; margin-bottom: 6px; display: block; }
   .ex-sub {  font-size: 15px; color: var(--ink-muted); position: relative; top: -3px; }
@@ -131,7 +127,266 @@
   .heatmap-tile { width: 24px; height: 24px; border: 2px solid var(--shadow); cursor: pointer; padding: 0; }
   .heatmap-tile.empty { background: var(--panel); }
 
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+  .cal-nav { display: flex; align-items: center; gap: 10px; }
+  .cal-navbtn {
+    width: 34px; height: 34px; border: 3px solid var(--ink); background: var(--panel); color: var(--ink);
+    font-family: 'Press Start 2P', monospace; font-size: 12px; cursor: pointer; box-shadow: 3px 3px 0 var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cal-navbtn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow); }
+  .cal-title.pixel { font-size: 13px; min-width: 168px; text-align: center; }
+  .cal-todaybtn {
+    font-family: 'Press Start 2P', monospace; font-size: 8px; padding: 8px 10px;
+    border: 3px solid var(--panel-edge); background: var(--panel); color: var(--ink-dim);
+    cursor: pointer; box-shadow: 3px 3px 0 var(--shadow);
+  }
+  .cal-todaybtn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow); }
+  .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
+  .cal-weekday { text-align: center; font-size: 15px; color: var(--ink-muted); position: relative; top: -3px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 22px; }
+  .cal-cell {
+    aspect-ratio: 1; background: var(--panel); border: 2px solid var(--panel-edge);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer; padding: 2px; color: inherit; font: inherit;
+  }
+  .cal-cell.empty { background: transparent; border: none; cursor: default; }
+  .cal-cell.today { border-color: #F2F2F2; border-width: 3px; }
+  .cal-cell.selected { background: var(--panel-edge); }
+  .cal-cell:not(.empty):hover { border-color: var(--ink-dim); }
+  .cal-daynum { font-size: 19px; position: relative; top: -2px; }
+  .cal-dots { display: flex; gap: 2px; margin-top: 2px; height: 6px; }
+  .cal-dot { width: 6px; height: 6px; flex-shrink: 0; }
+
+  .cal-detail { background: var(--panel); border: 3px solid var(--panel-edge); padding: 18px; box-shadow: 5px 5px 0 var(--shadow); }
+  .cal-detail-title.pixel { font-size: 12px; margin-bottom: 14px; }
+  .cal-task-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 2px solid var(--panel-edge); }
+  .cal-task-row:last-of-type { border-bottom: none; }
+  .cal-task-check {
+    width: 28px; height: 28px; border: 3px solid var(--ink); background: var(--panel); color: var(--maths);
+    cursor: pointer; flex-shrink: 0; font-family: 'Press Start 2P', monospace; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cal-task-check.done { background: var(--maths-tint); border-color: var(--maths); }
+  .cal-task-text { flex: 1; font-size: 20px; position: relative; top: -2px; }
+  .cal-task-text.done { color: var(--ink-muted); text-decoration: line-through; }
+  .cal-task-del {
+    width: 28px; height: 28px; border: 3px solid var(--panel-edge); background: var(--panel);
+    color: var(--ink-muted); cursor: pointer; flex-shrink: 0; font-family: 'Press Start 2P', monospace; font-size: 11px;
+  }
+  .cal-empty-note { font-size: 18px; color: var(--ink-muted); padding: 8px 0 16px; position: relative; top: -2px; }
+  .cal-add-row { display: flex; gap: 8px; margin-top: 8px; }
+  .cal-add-input {
+    flex: 1; font-family: 'VT323', monospace; font-size: 20px; padding: 9px;
+    border: 3px solid var(--panel-edge); background: var(--bg); color: var(--ink);
+  }
+  .cal-add-btn {
+    font-family: 'Press Start 2P', monospace; font-size: 9px; padding: 0 14px;
+    border: 3px solid var(--ink); background: var(--panel); color: var(--ink);
+    cursor: pointer; box-shadow: 3px 3px 0 var(--shadow);
+  }
+  .cal-add-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow); }
+
+  .stats-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .stats-tab {
+    font-family: 'Press Start 2P', monospace; font-size: 10px; padding: 10px 14px;
+    border: 3px solid var(--panel-edge); background: var(--panel); color: var(--ink-dim);
+    cursor: pointer; box-shadow: 4px 4px 0 var(--shadow);
+  }
+  .stats-tab.active { border-color: var(--ink); color: var(--ink); background: var(--panel-edge); }
+  .stats-tab:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+  .stats-total-box { background: var(--panel); border: 3px solid var(--panel-edge); padding: 24px; margin-bottom: 20px; box-shadow: 5px 5px 0 var(--shadow); text-align: center; }
+  .stats-total-num.pixel { font-size: 34px; color: #F2F2F2; text-shadow: 4px 4px 0 var(--shadow); }
+  .stats-total-label { font-size: 18px; color: var(--ink-muted); margin-top: 10px; position: relative; top: -2px; }
+  .stats-subject-row { background: var(--panel); border: 3px solid var(--panel-edge); padding: 14px 16px; margin-bottom: 10px; box-shadow: 5px 5px 0 var(--shadow); }
+  .stats-subject-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .stats-subject-name { display: flex; align-items: center; gap: 10px; }
+  .stats-subject-name.pixel { font-size: 12px; }
+  .stats-subject-dot { width: 12px; height: 12px; flex-shrink: 0; border: 2px solid var(--shadow); }
+  .stats-subject-count { font-size: 20px; color: var(--ink-dim); position: relative; top: -2px; }
+  .stats-note { font-size: 16px; color: var(--ink-muted); margin-top: 4px; position: relative; top: -2px; }
+  .stats-streak-label { margin-bottom: 4px; }
+  .stats-streak-label .pixel { font-size: 11px; }
+  .stats-week-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 22px; }
+  .stats-week-cell {
+    background: var(--panel); border: 2px solid var(--panel-edge); border-radius: 0;
+    padding: 7px 2px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; transition: transform 0.06s ease;
+  }
+  .stats-week-cell:active { transform: translate(1px, 1px); }
+  .stats-week-cell.future { cursor: default; }
+  .stats-week-cell.streak { background: color-mix(in srgb, var(--physics) 28%, var(--panel)); border-color: var(--physics); }
+  .stats-week-cell.revision { background: color-mix(in srgb, var(--maths) 28%, var(--panel)); border-color: var(--maths); }
+  .stats-week-cell.frozen { background: color-mix(in srgb, var(--chemistry) 28%, var(--panel)); border-color: var(--chemistry); }
+  .stats-week-cell.future { opacity: 0.35; }
+  .stats-week-cell.selected-day { outline: 2px solid #F2F2F2; outline-offset: 2px; }
+  .stats-week-letter { font-size: 13px; color: var(--ink-muted); }
+  .stats-week-cell.streak .stats-week-letter { color: var(--physics); }
+  .stats-week-cell.revision .stats-week-letter { color: var(--maths); }
+  .stats-week-cell.frozen .stats-week-letter { color: var(--chemistry); }
+  .stats-week-count { font-size: 16px; color: var(--ink-dim); position: relative; top: -2px; }
+  .stats-week-cell.streak .stats-week-count { color: #F2F2F2; }
+  .stats-week-cell.revision .stats-week-count { color: #F2F2F2; }
+  .stats-week-cell.frozen .stats-week-count { color: #F2F2F2; }
+  .stats-nav-row {
+    display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 20px;
+  }
+  .stats-nav-btn {
+    font-family: 'Press Start 2P', monospace; font-size: 12px; padding: 10px 14px;
+    border: 3px solid var(--panel-edge); background: var(--panel); color: var(--ink);
+    cursor: pointer; box-shadow: 4px 4px 0 var(--shadow);
+  }
+  .stats-nav-btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+  .stats-nav-btn.disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+  .stats-nav-label { font-size: 11px; color: var(--ink); min-width: 140px; text-align: center; }
+  .stats-week-glance-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 22px; }
+  .stats-week-glance-label { font-size: 12px; color: var(--ink-muted); letter-spacing: 1px; }
+  .stats-week-glance-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+  .stats-week-glance-row .stats-week-row { flex: 1; margin-bottom: 0; }
+  .week-glance-navbtn {
+    width: 30px; height: 30px; border: 3px solid var(--ink); background: var(--panel); color: var(--ink);
+    font-family: 'Press Start 2P', monospace; font-size: 11px; cursor: pointer; box-shadow: 3px 3px 0 var(--shadow);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .week-glance-navbtn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow); }
+  .week-glance-navbtn.disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
   input[type="file"] { display: none; }
+
+  /* ---- revision mode button ---- */
+  .revbtn {
+    font-family: 'Press Start 2P', monospace; font-size: 9px; padding: 10px 12px;
+    border: 3px solid var(--panel-edge); background: var(--panel); color: var(--ink-muted);
+    cursor: pointer; box-shadow: 4px 4px 0 var(--shadow); display: flex; align-items: center; gap: 8px;
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  }
+  .revbtn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+  .revbtn .revdot {
+    width: 10px; height: 10px; border: 2px solid var(--shadow); background: var(--ink-muted);
+    transition: background-color 0.25s ease;
+    flex-shrink: 0;
+  }
+  .revbtn.on {
+    border-color: var(--maths); color: var(--maths); background: var(--maths-tint);
+  }
+  .revbtn.on .revdot { background: var(--maths); animation: revpulse 0.5s ease; }
+  @keyframes revpulse {
+    0%   { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--maths) 60%, transparent); }
+    50%  { transform: scale(1.6); box-shadow: 0 0 0 6px color-mix(in srgb, var(--maths) 0%, transparent); }
+    100% { transform: scale(1); }
+  }
+
+  /* ---- streak freeze chip (calendar day detail) ---- */
+  .freeze-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--panel-edge); }
+  .freeze-label { font-size: 17px; color: var(--ink-dim); position: relative; top: -3px; }
+  .freeze-sub { font-size: 14px; color: var(--ink-muted); position: relative; top: -2px; }
+  .freeze-btn {
+    font-family: 'Press Start 2P', monospace; font-size: 9px; padding: 9px 12px;
+    border: 3px solid var(--panel-edge); background: var(--panel); color: var(--ink-muted);
+    cursor: pointer; box-shadow: 3px 3px 0 var(--shadow);
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .freeze-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow); }
+  .freeze-btn.on { border-color: var(--chemistry); color: var(--chemistry); background: var(--chemistry-tint); }
+  .freeze-btn.on-rev { border-color: var(--maths); color: var(--maths); background: var(--maths-tint); }
+  .freeze-btn.disabled { opacity: 0.4; cursor: default; }
+  .freeze-status { font-size: 14px; color: #F2F2F2; margin-bottom: 20px; position: relative; top: -2px; letter-spacing: 0.5px; }
+  .stats-status-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: -5px; flex-wrap: wrap; }
+  .stats-status-row .revbtn { position: relative; top: -25px; }
+
+  .cal-dot.revision { background: var(--maths); }
+  .cal-dot.freeze { background: var(--chemistry); }
+
+  /* ---- timer ---- */
+  .timer-wrap { text-align: center; padding: 30px 10px 10px; }
+  .timer-display {
+    font-family: 'Press Start 2P', monospace; font-size: 44px; color: #F2F2F2;
+    text-shadow: 4px 4px 0 var(--shadow); letter-spacing: 3px; margin: 10px 0 34px;
+    word-break: break-all;
+  }
+  .timer-display.running { color: var(--maths); text-shadow: 4px 4px 0 var(--shadow); }
+  .timer-display.finished { color: var(--physics); animation: timerFlash 0.6s steps(2, start) infinite; }
+  @keyframes timerFlash { 50% { opacity: 0.2; } }
+  .timer-inputs { display: flex; justify-content: center; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+  .timer-input-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .timer-input-group label { font-size: 13px; color: var(--ink-muted); letter-spacing: 1px; }
+  .timer-input-group input {
+    width: 72px; font-family: 'Press Start 2P', monospace; font-size: 20px; text-align: center;
+    background: var(--panel); border: 3px solid var(--panel-edge); color: var(--ink); padding: 10px 4px;
+  }
+  .timer-input-group input:focus { outline: none; border-color: var(--maths); }
+  .timer-input-group input:disabled { opacity: 0.4; }
+  .timer-btn-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .timer-btn {
+    font-family: 'Press Start 2P', monospace; font-size: 12px; padding: 14px 22px;
+    border: 3px solid var(--panel-edge); background: var(--panel); color: var(--ink);
+    cursor: pointer; box-shadow: 4px 4px 0 var(--shadow);
+  }
+  .timer-btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+  .timer-btn.start { border-color: var(--maths); color: var(--maths); }
+  .timer-btn.pause { border-color: var(--chemistry); color: var(--chemistry); }
+  .timer-btn.reset { border-color: var(--physics); color: var(--physics); }
+  .timer-btn.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+  .timer-add-row { margin-top: 16px; }
+  .timer-btn.add { font-size: 10px; padding: 10px 16px; border-color: var(--panel-edge); color: var(--ink-dim); box-shadow: 3px 3px 0 var(--shadow); }
+  .timer-btn.add:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow); }
+  .timer-status { font-size: 16px; color: var(--ink-dim); margin-top: 22px; letter-spacing: 0.5px; }
+
+  /* ---- dashboard (landing page) ---- */
+  .dash-wrap { text-align: center; padding: 26px 10px 6px; border-bottom: 3px solid var(--panel-edge); margin-bottom: 26px; }
+  .dash-clock-label { font-size: 14px; color: var(--ink-muted); letter-spacing: 2px; margin-bottom: 10px; }
+  .dash-clock {
+    font-size: 46px; color: #F2F2F2; text-shadow: 4px 4px 0 var(--shadow); letter-spacing: 4px; margin-bottom: 16px;
+  }
+  .dash-date { font-size: 16px; color: var(--ink-dim); letter-spacing: 1px; margin-bottom: 22px; }
+  .dash-countdowns-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .dash-section-title { font-size: 13px; color: var(--ink-dim); letter-spacing: 2px; }
+  .cd-add-toggle {
+    font-family: 'Press Start 2P', monospace; font-size: 14px; width: 34px; height: 34px;
+    border: 3px solid var(--panel-edge); background: var(--panel); color: var(--maths);
+    cursor: pointer; box-shadow: 3px 3px 0 var(--shadow); line-height: 1;
+  }
+  .cd-add-toggle:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow); }
+  .cd-add-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .cd-input {
+    flex: 1 1 220px; font-family: 'VT323', monospace; font-size: 20px; background: var(--panel);
+    border: 3px solid var(--panel-edge); color: var(--ink); padding: 12px 14px;
+  }
+  .cd-input:focus { outline: none; border-color: var(--maths); }
+  .cd-date-input {
+    font-family: 'VT323', monospace; font-size: 18px; background: var(--panel);
+    border: 3px solid var(--panel-edge); color: var(--ink); padding: 10px 12px; color-scheme: dark;
+  }
+  .cd-date-input:focus { outline: none; border-color: var(--maths); }
+  .cd-add-btn {
+    font-family: 'Press Start 2P', monospace; font-size: 11px; padding: 12px 18px;
+    border: 3px solid var(--panel-edge); background: var(--panel); color: var(--ink);
+    cursor: pointer; box-shadow: 4px 4px 0 var(--shadow);
+  }
+  .cd-add-btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+  .cd-empty { font-size: 16px; color: var(--ink-muted); padding: 10px 0 20px; }
+  .cd-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .cd-card {
+    position: relative; background: var(--panel); border: 3px solid var(--panel-edge);
+    padding: 10px; box-shadow: 4px 4px 0 var(--shadow);
+    height: 118px; box-sizing: border-box;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .cd-card.passed { opacity: 0.5; }
+  .cd-card-label {
+    font-size: 15px; color: #F2F2F2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding-right: 20px;
+  }
+  .cd-card-date { font-size: 12px; color: var(--ink-muted); margin-bottom: 8px; letter-spacing: 0.3px; }
+  .cd-remove-btn {
+    position: absolute; top: 6px; right: 6px;
+    font-family: 'Press Start 2P', monospace; font-size: 10px; width: 22px; height: 22px;
+    border: 2px solid var(--panel-edge); background: var(--bg); color: var(--ink-muted); cursor: pointer;
+  }
+  .cd-remove-btn:active { transform: translate(1px, 1px); }
+  .cd-card-big { font-size: 19px; text-shadow: 2px 2px 0 var(--shadow); letter-spacing: 0.5px; margin-bottom: 4px; white-space: nowrap; }
+  .cd-card-sub { font-size: 11px; color: var(--ink-dim); }
 </style>
 </head>
 <body>
@@ -196,7 +451,7 @@ const CURRICULUM = {
       ch("Kinematics", { ex1: 65, ex2: 80, ex3: 15, ex4: 75 }),
       ch("Newton's Laws of Motion", { ex1: 45, ex2: 45, ex3: 15, ex4: 45 }),
       ch("Friction", { ex1: 40, ex2: 45, ex3: 10, ex4: 65 }),
-      ch("Circular Motion", { ex1: 30, ex2: 30, ex3: 10, ex4: 45 }),
+      ch("Circular Motion", { ex1: 35, ex2: 30, ex3: 10, ex4: 45 }),
     ] },
     { chapters: [ // Module 2
       ch("Work, Power, Energy", { ex1: 45, ex2: 45, ex3: 15, ex4: 60 }),
@@ -207,9 +462,9 @@ const CURRICULUM = {
       ch("Simple Harmonic Motion", { ex1: 70, ex2: 60, ex3: 15, ex4: 65 }),
     ] },
     { chapters: [ // Module 3
-      ch("Wave Motion", { ex1: 70, ex2: 65, ex3: 15, ex4: 70 }),
+      ch("Wave Motion", { ex1: 75, ex2: 65, ex3: 15, ex4: 70 }),
       ch("Mechanical Propertie of Matter", { ex1: 55, ex2: 50, ex3: 15, ex4: 50 }),
-      ch("Thermal Expansion and Calorimetry", { ex1: 40, ex2: 30, ex3: 10, ex4: 35 }),
+      ch("Thermal Expansion and Calorimetry", { ex1: 45, ex2: 30, ex3: 10, ex4: 35 }),
       ch("Heat Transfer", { ex1: 35, ex2: 50, ex3: 10, ex4: 45 }),
       ch("Kinetic Theory of Gases", { ex1: 60, ex2: 30, ex3: 10, ex4: 30 }),
       ch("Thermodynamics", { ex1: 55, ex2: 50, ex3: 15, ex4: 50 }),
@@ -363,6 +618,26 @@ function pct(done, total) { return total === 0 ? 0 : Math.round((done / total) *
 /* ---------------- persistence ---------------- */
 const STORAGE_KEY = "bt-module-log-progress-v1";
 
+// All localStorage writes go through this so a failure (quota exceeded,
+// private-browsing restrictions, storage disabled, etc.) is surfaced to the
+// user at least once instead of silently vanishing into the console. We only
+// alert once per page load so a run of failures doesn't spam the user with
+// repeated popups on every keystroke/click.
+let storageWarningShown = false;
+function safeLocalStorageSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (err) {
+    console.error("Save failed", key, err);
+    if (!storageWarningShown) {
+      storageWarningShown = true;
+      alert("Your changes could not be saved to this browser (storage is full or unavailable). Use EXPORT now to back up your progress, then free up space or try a different browser.");
+    }
+    return false;
+  }
+}
+
 function loadProgress() {
   const fresh = makeEmptyProgress();
   try {
@@ -389,20 +664,114 @@ function loadProgress() {
 }
 
 function saveProgress() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
-  } catch (err) {
-    console.error("Save failed", err);
-  }
+  safeLocalStorageSet(STORAGE_KEY, JSON.stringify(state.progress));
 }
 
+/* ---------------- PYQ counters (separate from ex1-4; never counted in
+   chapter/module/subject/overall completion %, but DOES count toward daily
+   stats via the same history log) ---------------- */
+const PYQ_KEY = "bt-ledger-pyq-v1";
+
+function makeEmptyPyq() {
+  const p = {};
+  SUBJECTS.forEach((s) => {
+    p[s] = {};
+    CURRICULUM[s].forEach((mod, mi) => {
+      const m = mi + 1;
+      p[s][m] = {};
+      mod.chapters.forEach((_, ci) => { p[s][m][ci + 1] = 0; });
+    });
+  });
+  return p;
+}
+function loadPyq() {
+  const fresh = makeEmptyPyq();
+  try {
+    const raw = localStorage.getItem(PYQ_KEY);
+    if (!raw) return fresh;
+    const parsed = JSON.parse(raw);
+    SUBJECTS.forEach((s) => {
+      CURRICULUM[s].forEach((mod, mi) => {
+        const m = mi + 1;
+        mod.chapters.forEach((_, ci) => {
+          const c = ci + 1;
+          const v = parsed?.[s]?.[m]?.[c];
+          if (typeof v === "number") fresh[s][m][c] = Math.max(0, v);
+        });
+      });
+    });
+  } catch (err) {
+    console.warn("Could not load saved PYQ counts, starting fresh.", err);
+  }
+  return fresh;
+}
+function savePyq() {
+  safeLocalStorageSet(PYQ_KEY, JSON.stringify(state.pyq));
+}
+function setPyq(subject, moduleIndex, chapterIdx, value) {
+  const clamped = Math.max(0, isNaN(value) ? 0 : Math.round(value));
+  const prev = state.pyq[subject][moduleIndex][chapterIdx];
+  state.pyq[subject][moduleIndex][chapterIdx] = clamped;
+  logHistory(subject, clamped - prev); // counts toward daily/stats totals only
+  savePyq();
+  render();
+}
+
+/* ---------------- dashboard countdowns ---------------- */
+const COUNTDOWNS_KEY = "bt-ledger-countdowns-v1";
+function loadCountdowns() {
+  try {
+    const raw = localStorage.getItem(COUNTDOWNS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((c) => c && typeof c.id === "string" && typeof c.label === "string" && typeof c.targetDate === "string") : [];
+  } catch (err) {
+    console.warn("Could not load countdowns, starting fresh.", err);
+    return [];
+  }
+}
+function saveCountdowns() {
+  safeLocalStorageSet(COUNTDOWNS_KEY, JSON.stringify(state.countdowns));
+}
+function addCountdown(label, targetDate) {
+  const cleanLabel = (label || "").trim();
+  if (!cleanLabel || !targetDate) return;
+  state.countdowns.push({ id: `cd-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, label: cleanLabel, targetDate });
+  saveCountdowns();
+  render();
+}
+function removeCountdown(id) {
+  state.countdowns = state.countdowns.filter((c) => c.id !== id);
+  saveCountdowns();
+  render();
+}
+// Midnight IST on the given YYYY-MM-DD date, as an absolute timestamp (ms since epoch)
+// \u2014 the +05:30 suffix anchors it correctly regardless of the viewer's own timezone.
+function countdownTargetMs(dateStr) {
+  return new Date(`${dateStr}T00:00:00+05:30`).getTime();
+}
+function goLanding() { state.nav = { level: "dashboard" }; render(); }
+
 function exportProgress() {
-  const blob = new Blob([JSON.stringify(state.progress, null, 2)], { type: "application/json" });
+  const payload = {
+    _format: "bt-ledger-backup-v3",
+    exportedAt: new Date().toISOString(),
+    progress: state.progress,
+    pyq: state.pyq,
+    events: state.events,
+    history: state.history,
+    revisionDays: state.revisionDays,
+    revisionModeOn: state.revisionModeOn,
+    freezeDays: state.freezeDays,
+    freezeDeclined: state.freezeDeclined,
+    countdowns: state.countdowns,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   const stamp = new Date().toISOString().slice(0, 10);
   a.href = url;
-  a.download = `bt-module-log-progress-${stamp}.json`;
+  a.download = `bt-terminal-backup-${stamp}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -414,6 +783,21 @@ function importProgressFromFile(file) {
   reader.onload = () => {
     try {
       const parsed = JSON.parse(reader.result);
+      // Backward compatible: older exports were just the progress object itself
+      // (top-level keys = subject names). Newer exports wrap it as { progress, events, history }.
+      const isBundled = parsed && typeof parsed === "object" && parsed.progress && typeof parsed.progress === "object";
+      const progressSource = isBundled ? parsed.progress : parsed;
+      const eventsSource = isBundled && parsed.events && typeof parsed.events === "object" ? parsed.events : {};
+      const historySource = isBundled && Array.isArray(parsed.history) ? parsed.history : [];
+      const revisionSource = isBundled && parsed.revisionDays && typeof parsed.revisionDays === "object" ? parsed.revisionDays : {};
+      const revisionModeSource = isBundled ? !!parsed.revisionModeOn : false;
+      const freezeSource = isBundled && Array.isArray(parsed.freezeDays) ? parsed.freezeDays : [];
+      const freezeDeclinedSource = isBundled && parsed.freezeDeclined && typeof parsed.freezeDeclined === "object" ? parsed.freezeDeclined : {};
+      const pyqSource = isBundled && parsed.pyq && typeof parsed.pyq === "object" ? parsed.pyq : {};
+      const countdownsSource = isBundled && Array.isArray(parsed.countdowns)
+        ? parsed.countdowns.filter((c) => c && typeof c.id === "string" && typeof c.label === "string" && typeof c.targetDate === "string")
+        : [];
+
       const merged = makeEmptyProgress();
       SUBJECTS.forEach((s) => {
         CURRICULUM[s].forEach((mod, mi) => {
@@ -422,7 +806,7 @@ function importProgressFromFile(file) {
             const c = ci + 1;
             const exs = exercisesForChapter(chConfig);
             exs.forEach((e) => {
-              const v = parsed?.[s]?.[m]?.[c]?.[e.key];
+              const v = progressSource?.[s]?.[m]?.[c]?.[e.key];
               if (typeof v === "number") merged[s][m][c][e.key] = Math.max(0, Math.min(e.total, v));
             });
           });
@@ -430,37 +814,775 @@ function importProgressFromFile(file) {
       });
       state.progress = merged;
       saveProgress();
+
+      const mergedPyq = makeEmptyPyq();
+      SUBJECTS.forEach((s) => {
+        CURRICULUM[s].forEach((mod, mi) => {
+          const m = mi + 1;
+          mod.chapters.forEach((_, ci) => {
+            const c = ci + 1;
+            const v = pyqSource?.[s]?.[m]?.[c];
+            if (typeof v === "number") mergedPyq[s][m][c] = Math.max(0, v);
+          });
+        });
+      });
+      state.pyq = mergedPyq;
+      savePyq();
+
+      state.events = eventsSource;
+      saveEvents();
+
+      state.history = historySource;
+      saveHistory();
+      invalidateDailyTotalsCache();
+
+      state.revisionDays = revisionSource;
+      saveRevisionDays();
+
+      state.revisionModeOn = revisionModeSource;
+      saveRevisionModeOn();
+
+      state.freezeDays = freezeSource;
+      saveFreezeDays();
+
+      state.freezeDeclined = freezeDeclinedSource;
+      saveFreezeDeclined();
+
+      state.countdowns = countdownsSource;
+      saveCountdowns();
+
       render();
-      alert("Progress imported successfully.");
+      alert(isBundled
+        ? "Progress, calendar and stats all imported successfully."
+        : "Progress imported. (This was an older backup, so it didn't include calendar or stats data.)");
     } catch (err) {
-      alert("Could not read that file — make sure it's a progress export from this tool.");
+      alert("Could not read that file — make sure it's a backup exported from this tool.");
     }
   };
   reader.readAsText(file);
 }
 
+/* ---------------- calendar events persistence ---------------- */
+const EVENTS_KEY = "bt-ledger-events-v1";
+
+function loadEvents() {
+  try {
+    const raw = localStorage.getItem(EVENTS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return (parsed && typeof parsed === "object") ? parsed : {};
+  } catch (err) {
+    console.warn("Could not load saved events, starting fresh.", err);
+    return {};
+  }
+}
+
+function saveEvents() {
+  safeLocalStorageSet(EVENTS_KEY, JSON.stringify(state.events));
+}
+
+/* ---------------- revision mode persistence ---------------- */
+const REVISION_KEY = "bt-ledger-revision-v1";
+const REVISION_MODE_KEY = "bt-ledger-revision-mode-v1";
+
+function loadRevisionDays() {
+  try {
+    const raw = localStorage.getItem(REVISION_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return (parsed && typeof parsed === "object") ? parsed : {};
+  } catch (err) {
+    console.warn("Could not load revision days, starting fresh.", err);
+    return {};
+  }
+}
+function saveRevisionDays() {
+  safeLocalStorageSet(REVISION_KEY, JSON.stringify(state.revisionDays));
+}
+function loadRevisionModeOn() {
+  try {
+    return localStorage.getItem(REVISION_MODE_KEY) === "1";
+  } catch (err) {
+    return false;
+  }
+}
+function saveRevisionModeOn() {
+  safeLocalStorageSet(REVISION_MODE_KEY, state.revisionModeOn ? "1" : "0");
+}
+function isRevisionDay(key) { return !!state.revisionDays[key]; }
+// One-off toggle for a single date (used by the calendar day-detail view,
+// e.g. to retroactively flag a day you forgot, independent of the mode switch below).
+function toggleRevisionDay(key) {
+  if (state.revisionDays[key]) delete state.revisionDays[key];
+  else state.revisionDays[key] = true;
+  saveRevisionDays();
+  render();
+}
+// Persistent switch: while on, every day the app is opened gets auto-flagged as
+// a revision day, until you flip it off. Stays on across days/sessions.
+function toggleRevisionMode() {
+  state.revisionModeOn = !state.revisionModeOn;
+  if (state.revisionModeOn) {
+    state.revisionDays[todayKey()] = true;
+    saveRevisionDays();
+  }
+  saveRevisionModeOn();
+  render();
+}
+// Call once per render: if the mode switch is on, make sure today is flagged
+// (covers the case where the app was left open/reopened on a new day).
+function syncRevisionMode() {
+  if (state.revisionModeOn && !state.revisionDays[todayKey()]) {
+    state.revisionDays[todayKey()] = true;
+    saveRevisionDays();
+  }
+}
+
+/* ---------------- streak freeze persistence ---------------- */
+const FREEZE_KEY = "bt-ledger-freezes-v1";
+const FREEZE_DECLINED_KEY = "bt-ledger-freeze-declined-v1";
+const FREEZE_WINDOW_DAYS = 7; // 1 freeze allowed per rolling 7-day window
+
+function loadFreezeDays() {
+  try {
+    const raw = localStorage.getItem(FREEZE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.warn("Could not load streak freezes, starting fresh.", err);
+    return [];
+  }
+}
+function saveFreezeDays() {
+  safeLocalStorageSet(FREEZE_KEY, JSON.stringify(state.freezeDays));
+}
+function loadFreezeDeclined() {
+  try {
+    const raw = localStorage.getItem(FREEZE_DECLINED_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return (parsed && typeof parsed === "object") ? parsed : {};
+  } catch (err) {
+    console.warn("Could not load declined freezes, starting fresh.", err);
+    return {};
+  }
+}
+function saveFreezeDeclined() {
+  safeLocalStorageSet(FREEZE_DECLINED_KEY, JSON.stringify(state.freezeDeclined));
+}
+function isFreezeDeclined(key) { return !!state.freezeDeclined[key]; }
+function isFreezeDay(key) { return state.freezeDays.includes(key); }
+function daysBetweenKeys(keyA, keyB) {
+  const [ay, am, ad] = keyA.split("-").map(Number);
+  const [by, bm, bd] = keyB.split("-").map(Number);
+  const a = Date.UTC(ay, am - 1, ad);
+  const b = Date.UTC(by, bm - 1, bd);
+  return Math.round((b - a) / 86400000);
+}
+// Whether a freeze could be spent on `key`, i.e. no other freeze falls within
+// FREEZE_WINDOW_DAYS of it (either direction).
+function canUseFreeze(key) {
+  return !state.freezeDays.some((f) => f !== key && Math.abs(daysBetweenKeys(f, key)) < FREEZE_WINDOW_DAYS);
+}
+// Manual toggle, kept for the calendar day-detail view as a fallback/override.
+// Turning an existing freeze OFF also marks it "declined" so the automatic
+// walk (autoApplyFreezes) won't silently reinstate it on the next render.
+// Turning one back ON clears that flag.
+function toggleFreezeDay(key) {
+  if (state.freezeDays.includes(key)) {
+    state.freezeDays = state.freezeDays.filter((f) => f !== key);
+    state.freezeDeclined[key] = true;
+    saveFreezeDeclined();
+  } else {
+    if (!canUseFreeze(key)) {
+      alert(`Only 1 streak freeze per ${FREEZE_WINDOW_DAYS} days \u2014 you've already used one nearby.`);
+      return;
+    }
+    state.freezeDays.push(key);
+    if (state.freezeDeclined[key]) {
+      delete state.freezeDeclined[key];
+      saveFreezeDeclined();
+    }
+  }
+  saveFreezeDays();
+  render();
+}
+function isProtectedDay(key) { return isRevisionDay(key) || isFreezeDay(key); }
+
+
+
+/* ---------------- daily stats history persistence ---------------- */
+const HISTORY_KEY = "bt-ledger-history-v1";
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.warn("Could not load stats history, starting fresh.", err);
+    return [];
+  }
+}
+
+function saveHistory() {
+  safeLocalStorageSet(HISTORY_KEY, JSON.stringify(state.history));
+}
+
+function logHistory(subject, delta) {
+  if (delta === 0) return;
+  state.history.push({ date: todayKey(), subject, delta });
+  // keep the log from growing forever — a year of daily entries is plenty
+  if (state.history.length > 20000) state.history = state.history.slice(-20000);
+  saveHistory();
+  invalidateDailyTotalsCache();
+}
+
 /* ---------------- state & nav ---------------- */
 const state = {
   progress: loadProgress(),
-  nav: { level: "home", subject: null, moduleIndex: null, chapterIdx: null },
+  pyq: loadPyq(),
+  events: loadEvents(),
+  history: loadHistory(),
+  revisionDays: loadRevisionDays(),
+  revisionModeOn: loadRevisionModeOn(),
+  freezeDays: loadFreezeDays(),
+  freezeDeclined: loadFreezeDeclined(),
+  countdowns: loadCountdowns(),
+  cdFormOpen: false,
+  statsWeekOffset: 0,
+  timer: {
+    hInput: 0, mInput: 25, sInput: 0,
+    running: false,
+    finished: false,
+    endAt: null,        // timestamp (ms) the countdown reaches zero, while running
+    remainingMs: 0,      // snapshot of time left, kept in sync while paused/stopped
+  },
+  nav: { level: "dashboard" },
 };
+let timerIntervalId = null;
+
+function timerInputTotalMs() {
+  const h = Math.max(0, parseInt(state.timer.hInput, 10) || 0);
+  const m = Math.max(0, parseInt(state.timer.mInput, 10) || 0);
+  const s = Math.max(0, parseInt(state.timer.sInput, 10) || 0);
+  return ((h * 3600) + (m * 60) + s) * 1000;
+}
+function timerTick() {
+  const t = state.timer;
+  if (!t.running) return;
+  const remaining = t.endAt - Date.now();
+  if (remaining <= 0) {
+    t.remainingMs = 0;
+    t.running = false;
+    t.finished = true;
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+    playTimerBeep();
+    updatePipDisplay();
+    render(); // always reflect the finished state, even off-page
+  } else {
+    t.remainingMs = remaining;
+    updatePipDisplay();
+    if (state.nav.level === "timer") render();
+  }
+}
+function startTimer() {
+  const t = state.timer;
+  if (t.running) return;
+  const startFrom = (t.finished || t.remainingMs <= 0) ? timerInputTotalMs() : t.remainingMs;
+  if (startFrom <= 0) return;
+  t.remainingMs = startFrom;
+  t.endAt = Date.now() + startFrom;
+  t.running = true;
+  t.finished = false;
+  if (timerIntervalId) clearInterval(timerIntervalId);
+  timerIntervalId = setInterval(timerTick, 250);
+  updatePipDisplay();
+  render();
+}
+function pauseTimer() {
+  const t = state.timer;
+  if (!t.running) return;
+  t.remainingMs = Math.max(0, t.endAt - Date.now());
+  t.running = false;
+  if (timerIntervalId) { clearInterval(timerIntervalId); timerIntervalId = null; }
+  updatePipDisplay();
+  render();
+}
+function resetTimer() {
+  const t = state.timer;
+  t.running = false;
+  t.finished = false;
+  t.remainingMs = 0;
+  t.endAt = null;
+  if (timerIntervalId) { clearInterval(timerIntervalId); timerIntervalId = null; }
+  updatePipDisplay();
+  render();
+}
+// Adds extra time on the fly: extends the running countdown, or bumps the
+// paused/idle remaining time (and the input boxes, if nothing has been set yet).
+function adjustTimer(deltaMs) {
+  const t = state.timer;
+  if (t.running) {
+    t.endAt += deltaMs;
+    t.remainingMs = Math.max(0, t.endAt - Date.now());
+  } else if (t.finished || t.remainingMs > 0) {
+    t.remainingMs = Math.max(0, t.remainingMs + deltaMs);
+    t.finished = false;
+  } else {
+    // nothing running/paused yet \u2014 bump the input fields instead
+    const totalSec = Math.max(0, Math.round(timerInputTotalMs() / 1000) + Math.round(deltaMs / 1000));
+    t.hInput = Math.floor(totalSec / 3600);
+    t.mInput = Math.floor((totalSec % 3600) / 60);
+    t.sInput = totalSec % 60;
+  }
+  updatePipDisplay();
+  render();
+}
+function playTimerBeep() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    [0, 0.35, 0.7].forEach((delay) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.value = 880;
+      gain.gain.value = 0.08;
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.22);
+    });
+  } catch (err) {
+    console.warn("Beep failed", err);
+  }
+}
+function fmt2(n) { return String(n).padStart(2, "0"); }
+// 24-hour IST clock, computed from the actual Asia/Kolkata timezone so it's
+// correct regardless of the viewer's own device timezone.
+function getISTTimeString() {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }).format(new Date());
+}
+function getISTDateString() {
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata", weekday: "long", day: "2-digit", month: "long", year: "numeric",
+  }).format(new Date()).toUpperCase();
+}
+function formatTimerMs(ms) {
+  const totalSeconds = Math.ceil(ms / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  return `${fmt2(h)}:${fmt2(m)}:${fmt2(s)}`;
+}
+function goTimer() { state.nav = { level: "timer" }; render(); }
+
+/* ---------------- floating "follow me" timer window (Document Picture-in-Picture) ---------------- */
+let pipWindow = null;
+let pipTimeEl = null;
+let pipActionBtn = null;
+
+function pipSupported() { return "documentPictureInPicture" in window; }
+
+async function openTimerPip() {
+  if (!pipSupported()) {
+    alert("Floating timer needs a Chromium browser (Chrome or Edge) \u2014 it's not supported here yet.");
+    return;
+  }
+  if (pipWindow) { pipWindow.focus(); return; }
+
+  try {
+    pipWindow = await documentPictureInPicture.requestWindow({ width: 260, height: 180 });
+  } catch (err) {
+    console.warn("Could not open floating timer", err);
+    pipWindow = null;
+    return;
+  }
+
+  // Carry the pixel theme over into the floating window.
+  [...document.styleSheets].forEach((sheet) => {
+    try {
+      const cssText = [...sheet.cssRules].map((r) => r.cssText).join("\n");
+      const style = pipWindow.document.createElement("style");
+      style.textContent = cssText;
+      pipWindow.document.head.appendChild(style);
+    } catch (e) {
+      if (sheet.href) {
+        const link = pipWindow.document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = sheet.href;
+        pipWindow.document.head.appendChild(link);
+      }
+    }
+  });
+
+  const doc = pipWindow.document;
+  doc.title = "BT Timer";
+  doc.body.style.cssText = "margin:0; background:var(--bg); color:var(--ink); height:100%; display:flex;";
+
+  const container = doc.createElement("div");
+  container.style.cssText = "display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; width:100%; padding:14px; box-sizing:border-box;";
+
+  pipTimeEl = doc.createElement("div");
+  pipTimeEl.className = "pixel";
+  pipTimeEl.style.cssText = "font-size:26px; color:#F2F2F2; text-shadow:3px 3px 0 var(--shadow); letter-spacing:2px;";
+  container.appendChild(pipTimeEl);
+
+  const btnRow = doc.createElement("div");
+  btnRow.style.cssText = "display:flex; gap:8px; flex-wrap:wrap; justify-content:center;";
+
+  const mkBtn = (label, onclick) => {
+    const b = doc.createElement("button");
+    b.textContent = label;
+    b.style.cssText = "font-family:'Press Start 2P', monospace; font-size:9px; padding:9px 12px; border:3px solid var(--panel-edge); background:var(--panel); color:var(--ink); cursor:pointer; box-shadow:3px 3px 0 var(--shadow);";
+    b.onclick = onclick;
+    return b;
+  };
+
+  pipActionBtn = mkBtn("PAUSE", () => {});
+  btnRow.appendChild(pipActionBtn);
+  btnRow.appendChild(mkBtn("+1 MIN", () => { adjustTimer(60000); updatePipDisplay(); }));
+  container.appendChild(btnRow);
+
+  const closeBtn = mkBtn("CLOSE FLOAT", () => pipWindow && pipWindow.close());
+  closeBtn.style.marginTop = "2px";
+  container.appendChild(closeBtn);
+
+  doc.body.appendChild(container);
+
+  pipWindow.addEventListener("pagehide", () => {
+    pipWindow = null;
+    pipTimeEl = null;
+    pipActionBtn = null;
+    render();
+  });
+
+  updatePipDisplay();
+  render();
+}
+function closeTimerPip() {
+  if (pipWindow) pipWindow.close();
+}
+function updatePipDisplay() {
+  if (!pipWindow || !pipTimeEl) return;
+  const t = state.timer;
+  const ms = t.running || t.finished || t.remainingMs > 0 ? t.remainingMs : timerInputTotalMs();
+  pipTimeEl.textContent = t.finished ? "TIME'S UP!" : formatTimerMs(ms);
+  pipTimeEl.style.color = t.finished ? "var(--physics)" : (t.running ? "var(--maths)" : "#F2F2F2");
+  if (pipActionBtn) {
+    if (t.finished) { pipActionBtn.textContent = "RESET"; pipActionBtn.onclick = () => { resetTimer(); updatePipDisplay(); }; }
+    else if (t.running) { pipActionBtn.textContent = "PAUSE"; pipActionBtn.onclick = () => { pauseTimer(); updatePipDisplay(); }; }
+    else { pipActionBtn.textContent = "START"; pipActionBtn.onclick = () => { startTimer(); updatePipDisplay(); }; }
+  }
+}
 
 function goHome() { state.nav = { level: "home", subject: null, moduleIndex: null, chapterIdx: null }; render(); }
 function goSubject(subject) { state.nav = { level: "subject", subject, moduleIndex: null, chapterIdx: null }; render(); }
 function goModule(subject, moduleIndex) { state.nav = { level: "module", subject, moduleIndex, chapterIdx: null }; render(); }
 function goChapter(subject, moduleIndex, chapterIdx) { state.nav = { level: "chapter", subject, moduleIndex, chapterIdx }; render(); }
 function goHeatmap() { state.nav = { level: "heatmap", subject: null, moduleIndex: null, chapterIdx: null }; render(); }
+function goStats() { state.nav = { level: "stats", statsPeriod: "day", statsOffset: 0 }; state.statsWeekOffset = 0; render(); }
+function shiftWeekGlance(delta) {
+  state.statsWeekOffset = Math.max(0, (state.statsWeekOffset || 0) + delta);
+  render();
+}
 function goBack() {
   const n = state.nav;
   if (n.level === "chapter") goModule(n.subject, n.moduleIndex);
   else if (n.level === "module") goSubject(n.subject);
   else if (n.level === "subject") goHome();
-  else if (n.level === "heatmap") goHome();
+  else if (n.level === "home") goLanding();
+  else if (n.level === "heatmap") goLanding();
+  else if (n.level === "calendar") goLanding();
+  else if (n.level === "stats") goLanding();
+  else if (n.level === "timer") goLanding();
+}
+function setStatsPeriod(period) {
+  state.nav = { ...state.nav, statsPeriod: period, statsOffset: 0 };
+  render();
+}
+function shiftStatsOffset(delta) {
+  const cur = state.nav.statsOffset || 0;
+  const next = Math.max(0, cur + delta);
+  state.nav = { ...state.nav, statsOffset: next };
+  render();
+}
+// Jump the stats page straight to the 1-DAY view for a specific date key,
+// e.g. from clicking a day in the week-at-a-glance strip. Ignores future days.
+function selectStatsDay(key) {
+  const today = todayKey();
+  if (key > today) return;
+  const [y, m, d] = key.split("-").map(Number);
+  const target = new Date(y, m - 1, d);
+  const now = istToday();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const offsetDays = Math.round((todayMidnight - target) / 86400000);
+  state.nav = { ...state.nav, statsPeriod: "day", statsOffset: Math.max(0, offsetDays) };
+  render();
+}
+
+/* ---------------- calendar nav & actions ---------------- */
+function dateKey(y, m, d) {
+  return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+// Returns a Date object whose year/month/day fields are "today" in IST
+// (Asia/Kolkata), regardless of the device's own timezone. countdownTargetMs()
+// already anchored countdown targets to IST; every other "today" in the app
+// (streaks, history, freezes, calendar nav) was pulling the device's own local
+// date via bare `new Date()`, which would silently disagree with the IST date
+// shown on the dashboard clock if the device isn't set to IST (e.g. travelling
+// or a misconfigured clock). Anything that needs "today's calendar date"
+// should build it from this, not `new Date()` directly.
+function istToday() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  const y = Number(parts.find((p) => p.type === "year").value);
+  const m = Number(parts.find((p) => p.type === "month").value);
+  const d = Number(parts.find((p) => p.type === "day").value);
+  return new Date(y, m - 1, d);
+}
+function todayKey() {
+  const t = istToday();
+  return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
+}
+
+/* ---------------- stats helpers ---------------- */
+function currentWeekMonToSunKeys() {
+  const t = istToday();
+  const day = t.getDay(); // 0 = Sun ... 6 = Sat
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(t.getFullYear(), t.getMonth(), t.getDate() + diffToMonday);
+  const keys = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    keys.push(dateKey(d.getFullYear(), d.getMonth(), d.getDate()));
+  }
+  return keys;
+}
+// Cache of date-key -> summed delta, built with a single O(N) pass over
+// state.history. dayTotalFor() used to call statsForKeys([key]), which
+// re-scanned the *entire* history array on every single call — and
+// autoApplyFreezes() calls dayTotalFor() once per day for up to 3650 days
+// on every render(). That's O(days * history.length) every render.
+// This cache makes each dayTotalFor() call an O(1) lookup instead, so the
+// walk becomes O(history.length + days) — built once, reused many times.
+let dailyTotalsCache = null;
+
+function invalidateDailyTotalsCache() {
+  dailyTotalsCache = null;
+}
+
+function getDailyTotalsCache() {
+  if (!dailyTotalsCache) {
+    dailyTotalsCache = {};
+    state.history.forEach((entry) => {
+      dailyTotalsCache[entry.date] = (dailyTotalsCache[entry.date] || 0) + entry.delta;
+    });
+  }
+  return dailyTotalsCache;
+}
+
+function dayTotalFor(key) {
+  const cache = getDailyTotalsCache();
+  return Math.max(0, cache[key] || 0);
+}
+/* ---------------- stats period navigation (day/week/month, offset back from now) ---------------- */
+function dayKeyForOffset(offsetDays) {
+  const t = istToday();
+  const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() - offsetDays);
+  return dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function weekKeysForOffset(offsetWeeks) {
+  const t = istToday();
+  const day = t.getDay(); // 0 = Sun ... 6 = Sat
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(t.getFullYear(), t.getMonth(), t.getDate() + diffToMonday - offsetWeeks * 7);
+  const keys = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    keys.push(dateKey(d.getFullYear(), d.getMonth(), d.getDate()));
+  }
+  return keys;
+}
+function monthKeysForOffset(offsetMonths) {
+  const t = istToday();
+  const target = new Date(t.getFullYear(), t.getMonth() - offsetMonths, 1);
+  const y = target.getFullYear(), m = target.getMonth();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const lastDay = offsetMonths === 0 ? t.getDate() : daysInMonth;
+  const keys = [];
+  for (let d = 1; d <= lastDay; d++) keys.push(dateKey(y, m, d));
+  return keys;
+}
+function dayLabelForOffset(offsetDays) {
+  if (offsetDays === 0) return "TODAY";
+  if (offsetDays === 1) return "YESTERDAY";
+  return formatDateLabel(dayKeyForOffset(offsetDays));
+}
+function weekLabelForOffset(offsetWeeks) {
+  if (offsetWeeks === 0) return "THIS WEEK";
+  if (offsetWeeks === 1) return "LAST WEEK";
+  const keys = weekKeysForOffset(offsetWeeks);
+  const [sy, sm, sd] = keys[0].split("-").map(Number);
+  const [ey, em, ed] = keys[6].split("-").map(Number);
+  const sMon = MONTH_NAMES[sm - 1].slice(0, 3);
+  const eMon = MONTH_NAMES[em - 1].slice(0, 3);
+  return sm === em ? `${sMon} ${sd}\u2013${ed}` : `${sMon} ${sd} \u2013 ${eMon} ${ed}`;
+}
+function monthLabelForOffset(offsetMonths) {
+  if (offsetMonths === 0) return "THIS MONTH";
+  const t = istToday();
+  const target = new Date(t.getFullYear(), t.getMonth() - offsetMonths, 1);
+  return `${MONTH_NAMES[target.getMonth()]} ${target.getFullYear()}`;
+}
+// The set of consecutive days (walking back from today) with activity, forming the
+// currently unbroken streak. If today has nothing logged yet, today gets a grace
+// period (it isn't "over" yet) and the walk starts from yesterday instead.
+function computeStreakDates() {
+  const streakDates = new Set();
+  const today = istToday();
+  let cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  // Today isn't "over" yet, so a quiet day so far never breaks the streak on its own.
+  if (dayTotalFor(todayKey()) <= 0) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  // Capped the same way autoApplyFreezes() is: without a bound, a long run of
+  // revisionDays/freezeDays (e.g. from a corrupted or hand-edited import) makes
+  // isProtectedDay() true forever and this becomes a genuine infinite loop that
+  // hangs the tab. 3650 days (10 years) is far beyond any real streak.
+  let guard = 0;
+  while (guard++ < 3650) {
+    const key = dateKey(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+    if (dayTotalFor(key) > 0) {
+      streakDates.add(key);
+      cursor.setDate(cursor.getDate() - 1);
+    } else if (isProtectedDay(key)) {
+      // Revision day or streak freeze: doesn't count as active, but doesn't break the chain either.
+      cursor.setDate(cursor.getDate() - 1);
+    } else break;
+  }
+  return streakDates;
+}
+// Walks back from today (same grace-period rule as computeStreakDates) and, for any
+// genuinely missed day (no activity, not already revision/freeze), automatically
+// spends a streak freeze on it if one is available (1 per FREEZE_WINDOW_DAYS). Stops
+// as soon as a miss can't be covered, which naturally bounds this to a couple of days.
+function autoApplyFreezes() {
+  const today = istToday();
+  let cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  if (dayTotalFor(todayKey()) <= 0) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  let changed = false;
+  let guard = 0;
+  while (guard++ < 3650) {
+    const key = dateKey(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+    if (dayTotalFor(key) > 0) {
+      cursor.setDate(cursor.getDate() - 1);
+      continue;
+    }
+    if (isRevisionDay(key) || isFreezeDay(key)) {
+      cursor.setDate(cursor.getDate() - 1);
+      continue;
+    }
+    if (isFreezeDeclined(key)) {
+      // User explicitly turned this one off from the calendar \u2014 respect it,
+      // treat it as a genuine miss and stop extending the streak here.
+      break;
+    }
+    if (canUseFreeze(key)) {
+      state.freezeDays.push(key);
+      changed = true;
+      cursor.setDate(cursor.getDate() - 1);
+      continue;
+    }
+    break;
+  }
+  if (changed) saveFreezeDays();
+}
+function formatDateLabel(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return `${MONTH_NAMES[m - 1]} ${d}, ${y}`;
+}
+function statsForKeys(keys) {
+  const keySet = new Set(keys);
+  const bySubject = {};
+  SUBJECTS.forEach((s) => (bySubject[s] = 0));
+  let total = 0;
+  state.history.forEach((entry) => {
+    if (keySet.has(entry.date)) {
+      bySubject[entry.subject] = (bySubject[entry.subject] || 0) + entry.delta;
+      total += entry.delta;
+    }
+  });
+  SUBJECTS.forEach((s) => (bySubject[s] = Math.max(0, bySubject[s])));
+  return { total: Math.max(0, total), bySubject };
+}
+function goCalendar() {
+  const t = istToday();
+  state.nav = { level: "calendar", calYear: t.getFullYear(), calMonth: t.getMonth(), selectedDate: todayKey() };
+  render();
+}
+function calPrevMonth() {
+  let { calYear, calMonth } = state.nav;
+  calMonth -= 1;
+  if (calMonth < 0) { calMonth = 11; calYear -= 1; }
+  state.nav = { ...state.nav, calYear, calMonth };
+  render();
+}
+function calNextMonth() {
+  let { calYear, calMonth } = state.nav;
+  calMonth += 1;
+  if (calMonth > 11) { calMonth = 0; calYear += 1; }
+  state.nav = { ...state.nav, calYear, calMonth };
+  render();
+}
+function calGoToday() {
+  const t = istToday();
+  state.nav = { level: "calendar", calYear: t.getFullYear(), calMonth: t.getMonth(), selectedDate: todayKey() };
+  render();
+}
+function calSelectDay(key) {
+  state.nav = { ...state.nav, selectedDate: key };
+  render();
+}
+function addEvent(dateKeyStr, text) {
+  const trimmed = text.trim();
+  if (!trimmed) return;
+  if (!state.events[dateKeyStr]) state.events[dateKeyStr] = [];
+  state.events[dateKeyStr].push({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, text: trimmed, done: false });
+  saveEvents();
+  render();
+}
+function toggleEvent(dateKeyStr, id) {
+  const list = state.events[dateKeyStr];
+  if (!list) return;
+  const item = list.find((e) => e.id === id);
+  if (item) item.done = !item.done;
+  saveEvents();
+  render();
+}
+function deleteEvent(dateKeyStr, id) {
+  const list = state.events[dateKeyStr];
+  if (!list) return;
+  state.events[dateKeyStr] = list.filter((e) => e.id !== id);
+  if (state.events[dateKeyStr].length === 0) delete state.events[dateKeyStr];
+  saveEvents();
+  render();
 }
 
 function setExercise(subject, moduleIndex, chapterIdx, key, value, total) {
   const clamped = Math.max(0, Math.min(total, isNaN(value) ? 0 : value));
+  const prev = state.progress[subject][moduleIndex][chapterIdx][key];
   state.progress[subject][moduleIndex][chapterIdx][key] = clamped;
+  logHistory(subject, clamped - prev);
   saveProgress();
   render();
 }
@@ -510,16 +1632,18 @@ function crumbs(items, onJump) {
 }
 
 function render() {
+  syncRevisionMode();
+  autoApplyFreezes();
   const app = document.getElementById("app");
   app.innerHTML = "";
 
   const overall = overallAgg(state.progress);
 
   const headerLeft = el("div", { class: "header-left" });
-  if (state.nav.level !== "home") {
+  if (state.nav.level !== "dashboard") {
     headerLeft.appendChild(el("button", { class: "backbtn", "aria-label": "Back", onclick: goBack, text: "\u2190" }));
   }
-  const titleBlock = el("div", { style: "cursor:pointer", onclick: goHome }, [
+  const titleBlock = el("div", { style: "cursor:pointer", onclick: goLanding }, [
     el("h1", { class: "pixel", text: "BT MODULE LOG" }),
     el("div", { class: "subtitle", text: "MATHS \u00b7 PHYSICS \u00b7 CHEMISTRY" }),
   ]);
@@ -539,7 +1663,11 @@ function render() {
     e.target.value = "";
   });
   const toolbar = el("div", { class: "toolbar" }, [
+    el("button", { class: "toolbtn", text: "HOME", onclick: goHome }),
     el("button", { class: "toolbtn", text: "HEATMAP", onclick: goHeatmap }),
+    el("button", { class: "toolbtn", text: "CALENDAR", onclick: goCalendar }),
+    el("button", { class: "toolbtn", text: "STATS", onclick: goStats }),
+    el("button", { class: "toolbtn", text: "TIMER", onclick: goTimer }),
     el("button", { class: "toolbtn", text: "EXPORT", onclick: exportProgress }),
     el("button", { class: "toolbtn", text: "IMPORT", onclick: () => importInput.click() }),
     importInput,
@@ -547,11 +1675,15 @@ function render() {
   app.appendChild(toolbar);
 
   const n = state.nav;
-  if (n.level === "home") app.appendChild(renderHome());
+  if (n.level === "dashboard") app.appendChild(renderDashboard());
+  else if (n.level === "home") app.appendChild(renderHome());
   else if (n.level === "subject") app.appendChild(renderSubject(n.subject));
   else if (n.level === "module") app.appendChild(renderModule(n.subject, n.moduleIndex));
   else if (n.level === "chapter") app.appendChild(renderChapter(n.subject, n.moduleIndex, n.chapterIdx));
   else if (n.level === "heatmap") app.appendChild(renderHeatmap());
+  else if (n.level === "calendar") app.appendChild(renderCalendar());
+  else if (n.level === "stats") app.appendChild(renderStats());
+  else if (n.level === "timer") app.appendChild(renderTimer());
 }
 
 function renderHome() {
@@ -678,6 +1810,32 @@ function renderChapter(subject, moduleIndex, chapterIdx) {
     stack.appendChild(card);
   });
   wrap.appendChild(stack);
+
+  const pyqCount = state.pyq[subject][moduleIndex][chapterIdx];
+  const pyqMinus = el("button", {
+    class: "stepbtn", style: `background:${t.tint}; color:${t.accent}; border-color:${t.accent}`, text: "\u2212",
+    onclick: () => setPyq(subject, moduleIndex, chapterIdx, pyqCount - 1),
+  });
+  const pyqPlus = el("button", {
+    class: "stepbtn", style: `background:${t.tint}; color:${t.accent}; border-color:${t.accent}`, text: "+",
+    onclick: () => setPyq(subject, moduleIndex, chapterIdx, pyqCount + 1),
+  });
+  const pyqInput = el("input", { class: "ex-input pyq-input", type: "number", min: "0" });
+  pyqInput.value = pyqCount;
+  pyqInput.addEventListener("change", (ev) => {
+    setPyq(subject, moduleIndex, chapterIdx, parseInt(ev.target.value, 10));
+  });
+
+  wrap.appendChild(el("div", { class: "pyq-card" }, [
+    el("div", { class: "ex-top" }, [
+      el("div", {}, [
+        el("span", { class: "ex-name pixel", text: "PYQS" }),
+        el("div", { class: "ex-sub", text: "previous year questions \u00b7 not counted in completion %" }),
+      ]),
+      el("div", { class: "ex-controls" }, [pyqMinus, pyqInput, pyqPlus]),
+    ]),
+  ]));
+
   return wrap;
 }
 
@@ -739,14 +1897,441 @@ function renderHeatmap() {
   return wrap;
 }
 
-render();
-</script>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("service-worker.js").catch(() => {});
+const MONTH_NAMES = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+const WEEKDAY_LABELS = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+
+function renderCalendar() {
+  const wrap = el("div");
+  wrap.appendChild(crumbs(["Home", "Calendar"], (i) => { if (i === 0) goHome(); }));
+
+  const { calYear, calMonth, selectedDate } = state.nav;
+  const today = todayKey();
+
+  const nav = el("div", { class: "cal-nav" }, [
+    el("button", { class: "cal-navbtn", text: "\u2190", onclick: calPrevMonth, "aria-label": "Previous month" }),
+    el("span", { class: "cal-title pixel", text: `${MONTH_NAMES[calMonth]} ${calYear}` }),
+    el("button", { class: "cal-navbtn", text: "\u2192", onclick: calNextMonth, "aria-label": "Next month" }),
+  ]);
+  wrap.appendChild(el("div", { class: "cal-header" }, [
+    nav,
+    el("button", { class: "cal-todaybtn", text: "TODAY", onclick: calGoToday }),
+  ]));
+
+  const weekdayRow = el("div", { class: "cal-weekdays" });
+  WEEKDAY_LABELS.forEach((w) => weekdayRow.appendChild(el("span", { class: "cal-weekday", text: w })));
+  wrap.appendChild(weekdayRow);
+
+  const firstOfMonth = new Date(calYear, calMonth, 1);
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const leadingBlanks = firstOfMonth.getDay();
+
+  const grid = el("div", { class: "cal-grid" });
+  for (let i = 0; i < leadingBlanks; i++) {
+    grid.appendChild(el("div", { class: "cal-cell empty" }));
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = dateKey(calYear, calMonth, d);
+    const tasks = state.events[key] || [];
+    let cls = "cal-cell";
+    if (key === today) cls += " today";
+    if (key === selectedDate) cls += " selected";
+
+    const dots = el("div", { class: "cal-dots" });
+    if (tasks.length > 0) {
+      const allDone = tasks.every((t) => t.done);
+      dots.appendChild(el("span", { class: "cal-dot", style: `background:${allDone ? "var(--physics)" : "#F2F2F2"}` }));
+    }
+    if (isRevisionDay(key)) dots.appendChild(el("span", { class: "cal-dot revision" }));
+    if (isFreezeDay(key)) dots.appendChild(el("span", { class: "cal-dot freeze" }));
+
+    grid.appendChild(el("button", { class: cls, onclick: () => calSelectDay(key) }, [
+      el("span", { class: "cal-daynum", text: String(d) }),
+      dots,
+    ]));
+  }
+  wrap.appendChild(grid);
+
+  if (selectedDate) wrap.appendChild(renderDayDetail(selectedDate));
+
+  return wrap;
+}
+
+function renderDayDetail(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  const label = `${MONTH_NAMES[m - 1]} ${d}, ${y}`;
+  const tasks = state.events[key] || [];
+
+  const detail = el("div", { class: "cal-detail" });
+  detail.appendChild(el("div", { class: "cal-detail-title pixel", text: label }));
+
+  if (tasks.length === 0) {
+    detail.appendChild(el("div", { class: "cal-empty-note", text: "Nothing scheduled yet." }));
+  } else {
+    tasks.forEach((task) => {
+      const checkbox = el("button", {
+        class: task.done ? "cal-task-check done" : "cal-task-check",
+        text: task.done ? "\u2713" : "",
+        onclick: () => toggleEvent(key, task.id),
+        "aria-label": "Toggle complete",
+      });
+      const text = el("span", { class: task.done ? "cal-task-text done" : "cal-task-text", text: task.text });
+      const del = el("button", { class: "cal-task-del", text: "\u2715", onclick: () => deleteEvent(key, task.id), "aria-label": "Delete" });
+      detail.appendChild(el("div", { class: "cal-task-row" }, [checkbox, text, del]));
     });
   }
+
+  const input = el("input", { class: "cal-add-input", type: "text", placeholder: "Schedule something\u2026" });
+  const submit = () => { addEvent(key, input.value); };
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+  const addBtn = el("button", { class: "cal-add-btn", text: "ADD", onclick: submit });
+  detail.appendChild(el("div", { class: "cal-add-row" }, [input, addBtn]));
+
+  const revOn = isRevisionDay(key);
+  const revToggle = el("button", {
+    class: revOn ? "freeze-btn on-rev" : "freeze-btn",
+    onclick: () => toggleRevisionDay(key),
+  }, [
+    el("span", { class: "revdot", style: revOn ? "background:var(--maths)" : "" }),
+    el("span", { text: revOn ? "REVISION: ON" : "MARK REVISION DAY" }),
+  ]);
+  detail.appendChild(el("div", { class: "freeze-row" }, [
+    el("div", {}, [
+      el("div", { class: "freeze-label", text: "Revision day" }),
+      el("div", { class: "freeze-sub", text: "Excluded from streak \u2014 no solving expected" }),
+    ]),
+    revToggle,
+  ]));
+
+  const freezeOn = isFreezeDay(key);
+  const freezeBlocked = !freezeOn && !canUseFreeze(key);
+  const freezeToggle = el("button", {
+    class: [freezeOn ? "freeze-btn on" : "freeze-btn", freezeBlocked ? "disabled" : ""].join(" ").trim(),
+    onclick: () => toggleFreezeDay(key),
+  }, [
+    el("span", { text: freezeOn ? "\u2744\uFE0F FREEZE: ON" : "\u2744\uFE0F USE FREEZE" }),
+  ]);
+  detail.appendChild(el("div", { class: "freeze-row" }, [
+    el("div", {}, [
+      el("div", { class: "freeze-label", text: "Streak freeze" }),
+      el("div", { class: "freeze-sub", text: `1 per ${FREEZE_WINDOW_DAYS} days \u00b7 protects a missed day` }),
+    ]),
+    freezeToggle,
+  ]));
+
+  return detail;
+}
+
+function renderStats() {
+  const wrap = el("div");
+  wrap.appendChild(crumbs(["Home", "Stats"], (i) => { if (i === 0) goHome(); }));
+
+  const period = state.nav.statsPeriod || "day";
+  const offset = state.nav.statsOffset || 0;
+
+  const tabs = el("div", { class: "stats-tabs" });
+  [["day", "1 DAY"], ["week", "7 DAYS"], ["month", "1 MONTH"]].forEach(([key, label]) => {
+    tabs.appendChild(el("button", {
+      class: period === key ? "stats-tab active" : "stats-tab",
+      text: label,
+      onclick: () => setStatsPeriod(key),
+    }));
+  });
+  wrap.appendChild(tabs);
+
+  let keys, periodLabel;
+  if (period === "day") { keys = [dayKeyForOffset(offset)]; periodLabel = dayLabelForOffset(offset); }
+  else if (period === "week") { keys = weekKeysForOffset(offset); periodLabel = weekLabelForOffset(offset); }
+  else { keys = monthKeysForOffset(offset); periodLabel = monthLabelForOffset(offset); }
+
+  wrap.appendChild(el("div", { class: "stats-nav-row" }, [
+    el("button", { class: "stats-nav-btn", text: "\u2190", onclick: () => shiftStatsOffset(1) }),
+    el("span", { class: "stats-nav-label pixel", text: periodLabel }),
+    el("button", {
+      class: offset === 0 ? "stats-nav-btn disabled" : "stats-nav-btn",
+      text: "\u2192",
+      onclick: () => shiftStatsOffset(-1),
+    }),
+  ]));
+
+  // week-at-a-glance strip: Mon..Sun of the current calendar week, with the
+  // currently unbroken streak highlighted
+  const streakDates = computeStreakDates();
+  const weekGlanceOffset = state.statsWeekOffset || 0;
+  const weekKeys = weekKeysForOffset(weekGlanceOffset);
+  const weekLetters = ["M", "T", "W", "T", "F", "S", "S"];
+  const today = todayKey();
+
+  const streakLabel = el("div", { class: "stats-streak-label" }, [
+    streakDates.size > 0
+      ? el("span", { class: "pixel", style: "color:var(--physics)", text: `\uD83D\uDD25 ${streakDates.size} DAY STREAK` })
+      : el("span", { class: "pixel", style: "color:var(--ink-muted)", text: "NO ACTIVE STREAK" }),
+  ]);
+  wrap.appendChild(streakLabel);
+
+  const freezeAvailable = canUseFreeze(today);
+  const revOn = state.revisionModeOn;
+  const revBtn = el("button", {
+    class: revOn ? "revbtn on" : "revbtn",
+    onclick: () => toggleRevisionMode(),
+  }, [
+    el("span", { class: "revdot" }),
+    el("span", { text: revOn ? "REVISION: ON" : "REVISION MODE" }),
+  ]);
+  wrap.appendChild(el("div", { class: "stats-status-row" }, [
+    el("div", { class: "freeze-status", style: "margin-bottom:0", text:
+      freezeAvailable ? `\u2744\uFE0F Streak freeze available (1 per ${FREEZE_WINDOW_DAYS} days)` : "\u2744\uFE0F Streak freeze on cooldown"
+    }),
+    revBtn,
+  ]));
+
+  const weekRow = el("div", { class: "stats-week-row" });
+  const selectedDayKey = period === "day" ? dayKeyForOffset(offset) : null;
+  weekKeys.forEach((key, i) => {
+
+    const isFuture = key > today;
+    const inStreak = streakDates.has(key);
+    const protectedDay = !isFuture && !inStreak && dayTotalFor(key) === 0 && isProtectedDay(key);
+    let cls = "stats-week-cell";
+    if (inStreak) cls += " streak";
+    else if (protectedDay) cls += isFreezeDay(key) ? " frozen" : " revision";
+    if (isFuture) cls += " future";
+    if (key === selectedDayKey) cls += " selected-day";
+    const count = isFuture ? "\u2013" : (protectedDay ? (isFreezeDay(key) ? "\u2744\uFE0F" : "\uD83D\uDCD6") : String(dayTotalFor(key)));
+    weekRow.appendChild(el("div", {
+      class: cls,
+      onclick: isFuture ? () => {} : () => selectStatsDay(key),
+    }, [
+      el("span", { class: "stats-week-letter", text: weekLetters[i] }),
+      el("span", { class: "stats-week-count", text: count }),
+    ]));
+  });
+  const weekGlanceWrap = el("div", { class: "stats-week-glance-wrap" }, [
+    el("div", { class: "stats-week-glance-label", text: weekLabelForOffset(weekGlanceOffset) }),
+    el("div", { class: "stats-week-glance-row" }, [
+      el("button", {
+        class: "week-glance-navbtn", text: "\u2190", "aria-label": "Previous week",
+        onclick: () => shiftWeekGlance(1),
+      }),
+      weekRow,
+      el("button", {
+        class: weekGlanceOffset === 0 ? "week-glance-navbtn disabled" : "week-glance-navbtn",
+        text: "\u2192", "aria-label": "Next week",
+        onclick: () => shiftWeekGlance(-1),
+      }),
+    ]),
+  ]);
+  wrap.appendChild(weekGlanceWrap);
+
+  const stats = statsForKeys(keys);
+
+  wrap.appendChild(el("div", { class: "stats-total-box" }, [
+    el("div", { class: "stats-total-num pixel", text: String(stats.total) }),
+    el("div", { class: "stats-total-label", text: `QUESTIONS DONE \u2014 ${periodLabel}` }),
+  ]));
+
+  SUBJECTS.forEach((s) => {
+    const t = THEME[s];
+    const count = stats.bySubject[s] || 0;
+    const shareOfTotal = stats.total > 0 ? count / stats.total : 0;
+    wrap.appendChild(el("div", { class: "stats-subject-row" }, [
+      el("div", { class: "stats-subject-top" }, [
+        el("div", { class: "stats-subject-name" }, [
+          el("span", { class: "stats-subject-dot", style: `background:${t.accent}` }),
+          el("span", { class: "pixel", text: s.toUpperCase() }),
+        ]),
+        el("span", { class: "stats-subject-count", text: String(count) }),
+      ]),
+      pixelBar(shareOfTotal * 100, 100, t.accent, 20, 10),
+    ]));
+  });
+
+  if (state.history.length === 0) {
+    wrap.appendChild(el("div", { class: "stats-note", text: "Stats start tracking from now \u2014 log a few questions and this page fills in." }));
+  }
+
+  return wrap;
+}
+
+function renderTimer() {
+  const wrap = el("div");
+  wrap.appendChild(crumbs(["Home", "Timer"], (i) => { if (i === 0) goHome(); }));
+
+  const t = state.timer;
+  const displayMs = t.running || t.finished || t.remainingMs > 0 ? t.remainingMs : timerInputTotalMs();
+  const dispClass = t.finished ? "timer-display finished" : (t.running ? "timer-display running" : "timer-display");
+
+  const timerWrap = el("div", { class: "timer-wrap" });
+
+  timerWrap.appendChild(el("div", {
+    class: dispClass,
+    text: t.finished ? "TIME'S UP!" : formatTimerMs(displayMs),
+  }));
+
+  const hInput = el("input", { type: "number", min: "0", max: "23" });
+  hInput.value = t.hInput;
+  hInput.disabled = t.running || t.finished;
+  hInput.addEventListener("change", (e) => { t.hInput = Math.max(0, Math.min(23, parseInt(e.target.value, 10) || 0)); render(); });
+
+  const mInput = el("input", { type: "number", min: "0", max: "59" });
+  mInput.value = t.mInput;
+  mInput.disabled = t.running || t.finished;
+  mInput.addEventListener("change", (e) => { t.mInput = Math.max(0, Math.min(59, parseInt(e.target.value, 10) || 0)); render(); });
+
+  const sInput = el("input", { type: "number", min: "0", max: "59" });
+  sInput.value = t.sInput;
+  sInput.disabled = t.running || t.finished;
+  sInput.addEventListener("change", (e) => { t.sInput = Math.max(0, Math.min(59, parseInt(e.target.value, 10) || 0)); render(); });
+
+  timerWrap.appendChild(el("div", { class: "timer-inputs" }, [
+    el("div", { class: "timer-input-group" }, [hInput, el("label", { text: "HRS" })]),
+    el("div", { class: "timer-input-group" }, [mInput, el("label", { text: "MIN" })]),
+    el("div", { class: "timer-input-group" }, [sInput, el("label", { text: "SEC" })]),
+  ]));
+
+  const startBtn = el("button", {
+    class: `timer-btn start${t.running ? " disabled" : ""}`,
+    text: (t.remainingMs > 0 && !t.running && !t.finished) ? "RESUME" : "START",
+    onclick: startTimer,
+  });
+  const pauseBtn = el("button", {
+    class: `timer-btn pause${!t.running ? " disabled" : ""}`,
+    text: "PAUSE",
+    onclick: pauseTimer,
+  });
+  const resetBtn = el("button", {
+    class: `timer-btn reset${(!t.running && !t.finished && t.remainingMs <= 0) ? " disabled" : ""}`,
+    text: "RESET",
+    onclick: resetTimer,
+  });
+
+  timerWrap.appendChild(el("div", { class: "timer-btn-row" }, [startBtn, pauseBtn, resetBtn]));
+
+  const addBtn = (label, ms) => el("button", { class: "timer-btn add", text: label, onclick: () => adjustTimer(ms) });
+  timerWrap.appendChild(el("div", { class: "timer-btn-row timer-add-row" }, [
+    addBtn("+1 MIN", 60000),
+    addBtn("+5 MIN", 5 * 60000),
+    addBtn("+10 MIN", 10 * 60000),
+  ]));
+
+  const floatBtn = el("button", {
+    class: "timer-btn add",
+    text: pipWindow ? "\uD83D\uDCFA FLOATING\u2026" : "\uD83D\uDCFA FLOAT ON TOP",
+    onclick: pipWindow ? closeTimerPip : openTimerPip,
+  });
+  timerWrap.appendChild(el("div", { class: "timer-btn-row timer-add-row" }, [floatBtn]));
+
+  timerWrap.appendChild(el("div", { class: "timer-status", text:
+    t.finished ? "\u23F0 Countdown finished." : (t.running ? "\u25B6 Counting down\u2026" : "Set a duration and hit START.")
+  }));
+
+  wrap.appendChild(timerWrap);
+  return wrap;
+}
+
+function computeCountdownDisplay(targetMs) {
+  const remainMs = targetMs - Date.now();
+  let bigText, subText, passed;
+  if (remainMs <= 0) {
+    const overdueDays = Math.floor(Math.abs(remainMs) / 86400000);
+    bigText = overdueDays === 0 ? "TODAY" : `+${overdueDays}D`;
+    subText = overdueDays === 0 ? "It's today!" : `${overdueDays} day${overdueDays === 1 ? "" : "s"} ago`;
+    passed = true;
+  } else {
+    const days = Math.floor(remainMs / 86400000);
+    const hrs = Math.floor((remainMs % 86400000) / 3600000);
+    const mins = Math.floor((remainMs % 3600000) / 60000);
+    const secs = Math.floor((remainMs % 60000) / 1000);
+    bigText = `${days}D`;
+    subText = `${fmt2(hrs)}:${fmt2(mins)}:${fmt2(secs)} remaining`;
+    passed = false;
+  }
+  return { bigText, subText, passed };
+}
+
+function renderDashboard() {
+  const wrap = el("div");
+  const dashWrap = el("div", { class: "dash-wrap" });
+
+  dashWrap.appendChild(el("div", { class: "dash-clock-label", text: "INDIAN STANDARD TIME" }));
+  dashWrap.appendChild(el("div", { class: "dash-clock pixel", id: "dash-clock", text: getISTTimeString() }));
+  dashWrap.appendChild(el("div", { class: "dash-date", id: "dash-date", text: getISTDateString() }));
+
+  wrap.appendChild(dashWrap);
+
+  const cdSection = el("div", { class: "dash-countdowns" });
+  const addToggleBtn = el("button", {
+    class: "cd-add-toggle pixel", text: state.cdFormOpen ? "\u2212" : "+",
+    "aria-label": "Add a countdown",
+    onclick: () => { state.cdFormOpen = !state.cdFormOpen; render(); },
+  });
+  cdSection.appendChild(el("div", { class: "dash-countdowns-header" }, [
+    el("div", { class: "dash-section-title pixel", text: "COUNTDOWNS" }),
+    addToggleBtn,
+  ]));
+
+  if (state.cdFormOpen) {
+    const labelInput = el("input", { class: "cd-input", type: "text", placeholder: "What are you counting down to\u2026" });
+    const dateInput = el("input", { class: "cd-date-input", type: "date" });
+    const addBtn = el("button", {
+      class: "cd-add-btn", text: "ADD",
+      onclick: () => { addCountdown(labelInput.value, dateInput.value); state.cdFormOpen = false; },
+    });
+    cdSection.appendChild(el("div", { class: "cd-add-row" }, [labelInput, dateInput, addBtn]));
+  }
+
+  const sorted = [...state.countdowns].sort((a, b) => countdownTargetMs(a.targetDate) - countdownTargetMs(b.targetDate));
+
+  if (sorted.length === 0) {
+    cdSection.appendChild(el("div", { class: "cd-empty", text: "No countdowns yet \u2014 tap + to add one." }));
+  } else {
+    const grid = el("div", { class: "cd-grid" });
+    const themeKeys = SUBJECTS; // cycle through the subject accent colors for visual variety
+    sorted.forEach((c, i) => {
+      const targetMs = countdownTargetMs(c.targetDate);
+      const accent = THEME[themeKeys[i % themeKeys.length]].accent;
+      const { bigText, subText, passed } = computeCountdownDisplay(targetMs);
+
+      const targetDisplay = new Date(targetMs).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
+
+      grid.appendChild(el("div", { class: `cd-card${passed ? " passed" : ""}`, id: `cd-card-${c.id}`, style: `border-color:${accent}` }, [
+        el("button", { class: "cd-remove-btn", text: "\u00d7", "aria-label": "Remove countdown", onclick: () => removeCountdown(c.id) }),
+        el("div", { class: "cd-card-label", title: c.label, text: c.label }),
+        el("div", { class: "cd-card-date", text: targetDisplay }),
+        el("div", { class: "cd-card-big pixel", id: `cd-big-${c.id}`, style: `color:${accent}`, text: bigText }),
+        el("div", { class: "cd-card-sub", id: `cd-sub-${c.id}`, text: subText }),
+      ]));
+    });
+    cdSection.appendChild(grid);
+  }
+
+  wrap.appendChild(cdSection);
+  return wrap;
+}
+
+// Live clock + countdown ticker: updates just the relevant text nodes directly
+// instead of calling the full render() every second, so it never disturbs
+// whatever you're typing in the add-countdown inputs.
+function tickDashboard() {
+  if (state.nav.level !== "dashboard") return;
+  const clockEl = document.getElementById("dash-clock");
+  if (clockEl) clockEl.textContent = getISTTimeString();
+  const dateEl = document.getElementById("dash-date");
+  if (dateEl) dateEl.textContent = getISTDateString();
+
+  state.countdowns.forEach((c) => {
+    const bigEl = document.getElementById(`cd-big-${c.id}`);
+    const subEl = document.getElementById(`cd-sub-${c.id}`);
+    const cardEl = document.getElementById(`cd-card-${c.id}`);
+    if (!bigEl || !subEl) return;
+    const { bigText, subText, passed } = computeCountdownDisplay(countdownTargetMs(c.targetDate));
+    bigEl.textContent = bigText;
+    subEl.textContent = subText;
+    if (cardEl) cardEl.classList.toggle("passed", passed);
+  });
+}
+setInterval(tickDashboard, 1000);
+
+render();
 </script>
 </body>
 </html>
