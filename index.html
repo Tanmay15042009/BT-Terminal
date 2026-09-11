@@ -382,27 +382,35 @@
   }
   .cd-add-btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
   .cd-empty { font-size: 16px; color: var(--ink-muted); padding: 10px 0 20px; }
-  .cd-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  /* grid-template-columns uses minmax(0, 1fr) rather than a bare 1fr: a bare 1fr
+     track's implicit minimum is "auto", which for a nowrap-text card resolves to
+     that card's full unwrapped content width — so a long label (e.g. "Full
+     Syllabus Mock Test #4") silently stretched its own column wider than the
+     other four, throwing off the even 5-per-row alignment against the
+     background grid. minmax(0, 1fr) pins every track's minimum to 0 so all
+     five columns stay identically sized regardless of label length. Each card
+     then works out to ~127px (~5.3 background grid squares at 24px/square). */
+  .cd-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .cd-card {
     position: relative; background: var(--panel); border: 3px solid var(--panel-edge);
     padding: 10px; box-shadow: 4px 4px 0 var(--shadow);
-    height: 118px; box-sizing: border-box;
+    height: 112px; box-sizing: border-box; min-width: 0;
     display: flex; flex-direction: column; justify-content: center;
   }
   .cd-card.passed { opacity: 0.5; }
   .cd-card-label {
-    font-size: 15px; color: #F2F2F2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    padding-right: 20px;
+    font-size: 13px; color: #F2F2F2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    padding-right: 18px;
   }
-  .cd-card-date { font-size: 12px; color: var(--ink-muted); margin-bottom: 8px; letter-spacing: 0.3px; }
+  .cd-card-date { font-size: 11px; color: var(--ink-muted); margin-bottom: 8px; letter-spacing: 0.3px; }
   .cd-remove-btn {
     position: absolute; top: 6px; right: 6px;
-    font-family: 'Press Start 2P', monospace; font-size: 10px; width: 22px; height: 22px;
+    font-family: 'Press Start 2P', monospace; font-size: 10px; width: 20px; height: 20px;
     border: 2px solid var(--panel-edge); background: var(--bg); color: var(--ink-muted); cursor: pointer;
   }
   .cd-remove-btn:active { transform: translate(1px, 1px); }
-  .cd-card-big { font-size: 19px; text-shadow: 2px 2px 0 var(--shadow); letter-spacing: 0.5px; margin-bottom: 4px; white-space: nowrap; }
-  .cd-card-sub { font-size: 11px; color: var(--ink-dim); }
+  .cd-card-big { font-size: 17px; text-shadow: 2px 2px 0 var(--shadow); letter-spacing: 0.5px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; }
+  .cd-card-sub { font-size: 10px; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* ---- pin / today's focus ---- */
   .pin-btn {
