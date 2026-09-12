@@ -465,7 +465,7 @@
   .mute-btn.on { border-color: var(--chemistry); color: var(--chemistry); }
   .pomo-phase-badge {
     font-family: 'Press Start 2P', monospace; font-size: 11px; text-align: center; letter-spacing: 1px;
-    color: #F2C94C; margin-bottom: 10px;
+    color: var(--maths); margin-bottom: 10px;
   }
 </style>
 </head>
@@ -2446,7 +2446,7 @@ function renderTimer() {
 
   if (t.pomodoroMode) {
     timerWrap.appendChild(el("div", { class: "pomo-phase-badge", text:
-      t.phase === "work" ? "\uD83C\uDF45 WORK SESSION" : "\u2615 BREAK"
+      t.phase === "work" ? "WORK SESSION" : "\u2615 BREAK"
     }));
   }
 
@@ -2499,7 +2499,7 @@ function renderTimer() {
 
   const pomodoroModeBtn = el("button", {
     class: t.pomodoroMode ? "mute-btn on" : "mute-btn",
-    text: t.pomodoroMode ? "\uD83C\uDF45 POMODORO MODE: ON" : "\uD83C\uDF45 POMODORO MODE: OFF",
+    text: t.pomodoroMode ? "POMODORO MODE: ON" : "POMODORO MODE: OFF",
     onclick: () => {
       t.pomodoroMode = !t.pomodoroMode;
       if (t.pomodoroMode) t.phase = "work";
@@ -2597,9 +2597,12 @@ function renderDashboard() {
     const chConfig = getChapter(pinned.subject, pinned.moduleIndex, pinned.chapterIdx);
     const agg = chapterAgg(state.progress, pinned.subject, pinned.moduleIndex, pinned.chapterIdx);
     const t = THEME[pinned.subject];
-    const ex1Done = state.progress[pinned.subject][pinned.moduleIndex][pinned.chapterIdx].ex1;
+    const chProgress = state.progress[pinned.subject][pinned.moduleIndex][pinned.chapterIdx];
+    const ex1Done = chProgress.ex1;
     const ex1Total = chConfig.ex1;
-    const quickAdd = (n) => setExercise(pinned.subject, pinned.moduleIndex, pinned.chapterIdx, "ex1", ex1Done + n, ex1Total);
+    const ex2Done = chProgress.ex2;
+    const ex2Total = chConfig.ex2;
+    const quickAdd = (exKey, exDone, exTotal, n) => setExercise(pinned.subject, pinned.moduleIndex, pinned.chapterIdx, exKey, exDone + n, exTotal);
 
     wrap.appendChild(el("div", { class: "focus-wrap" }, [
       el("div", { class: "dash-section-title", style: "margin-bottom:12px;", text: "TODAY'S FOCUS" }),
@@ -2608,11 +2611,11 @@ function renderDashboard() {
           el("span", { class: "focus-name pixel", text: chConfig.name.toUpperCase() }),
           statLine(agg.done, agg.total),
         ]),
-        el("div", { class: "focus-sub", text: `${pinned.subject.toUpperCase()} \u00b7 MODULE ${pinned.moduleIndex} \u00b7 EX-1: ${ex1Done}/${ex1Total}` }),
+        el("div", { class: "focus-sub", text: `${pinned.subject.toUpperCase()} \u00b7 MODULE ${pinned.moduleIndex} \u00b7 EX-1: ${ex1Done}/${ex1Total} \u00b7 EX-2: ${ex2Done}/${ex2Total}` }),
         pixelBar(agg.done, agg.total, t.accent),
         el("div", { class: "focus-quick-row" }, [
-          el("button", { class: "focus-goto", text: "+1 EX-1", onclick: () => quickAdd(1) }),
-          el("button", { class: "focus-goto", text: "+5 EX-1", onclick: () => quickAdd(5) }),
+          el("button", { class: "focus-goto", text: "+1 EX-1", onclick: () => quickAdd("ex1", ex1Done, ex1Total, 1) }),
+          el("button", { class: "focus-goto", text: "+1 EX-2", onclick: () => quickAdd("ex2", ex2Done, ex2Total, 1) }),
           el("button", { class: "focus-goto", text: "OPEN CHAPTER \u2192", onclick: () => goChapter(pinned.subject, pinned.moduleIndex, pinned.chapterIdx) }),
           el("button", { class: "focus-unpin", text: "unpin", onclick: () => togglePin(pinned.subject, pinned.moduleIndex, pinned.chapterIdx) }),
         ]),
