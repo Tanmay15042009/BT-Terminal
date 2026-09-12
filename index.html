@@ -860,6 +860,7 @@ function isPinned(subject, moduleIndex, chapterIdx) {
 }
 function togglePin(subject, moduleIndex, chapterIdx) {
   state.pinnedChapter = isPinned(subject, moduleIndex, chapterIdx) ? null : { subject, moduleIndex, chapterIdx };
+  state.focusUndoStack = [];
   savePinnedChapter();
   render();
 }
@@ -1243,6 +1244,7 @@ const state = {
   freezeDeclined: loadFreezeDeclined(),
   countdowns: loadCountdowns(),
   pinnedChapter: loadPinnedChapter(),
+  focusUndoStack: [], // [{ subject, moduleIndex, chapterIdx, exKey, prevValue, total }, ...] \u2014 runtime-only, not persisted; cleared whenever the pin changes
   timerMuted: loadTimerMuted(),
   lastExportAt: loadLastExportAt(),
   pomodoroStats: loadPomodoroStats(),
@@ -2602,7 +2604,30 @@ function renderDashboard() {
     const ex1Total = chConfig.ex1;
     const ex2Done = chProgress.ex2;
     const ex2Total = chConfig.ex2;
-    const quickAdd = (exKey, exDone, exTotal, n) => setExercise(pinned.subject, pinned.moduleIndex, pinned.chapterIdx, exKey, exDone + n, exTotal);
+    const quickAdd = (exKey, exDone, exTotal, n) => {
+      state.focusUndoStack.push({ subject: pinned.subject, moduleIndex: pinned.moduleIndex, chapterIdx: pinned.chapterIdx, exKey, prevValue: exDone, total: exTotal });
+      if (state.focusUndoStack.length > 50) state.focusUndoStack.shift(); // cap so it can't grow unbounded in one session
+      setExercise(pinned.subject, pinned.moduleIndex, pinned.chapterIdx, exKey, exDone + n, exTotal);
+    };
+    // Pops and reverts the most recent quick-add, one click at a time, so pressing
+    // undo repeatedly walks back through everything you just did. The stack is
+    // cleared on every pin/unpin (see togglePin), so it can never straddle two
+    // different chapters \u2014 pressing undo after switching pins is always a no-op.
+    const undoFocus = () => {
+      const stack = state.focusUndoStack;
+      if (stack.length === 0) return;
+      const u = stack.pop();
+      if (u.subject !== pinned.subject || u.moduleIndex !== pinned.moduleIndex || u.chapterIdx !== pinned.chapterIdx) return;
+      setExercise(u.subject, u.moduleIndex, u.chapterIdx, u.exKey, u.prevValue, u.total);
+    };
+
+    const quickRow = [
+      el("button", { class: "focus-goto", text: "+1 EX-1", onclick: () => quickAdd("ex1", ex1Done, ex1Total, 1) }),
+      el("button", { class: "focus-goto", text: "+1 EX-2", onclick: () => quickAdd("ex2", ex2Done, ex2Total, 1) }),
+      el("button", { class: "focus-goto", text: "\u21B6 UNDO", onclick: undoFocus }),
+      el("button", { class: "focus-goto", text: "OPEN CHAPTER \u2192", onclick: () => goChapter(pinned.subject, pinned.moduleIndex, pinned.chapterIdx) }),
+      el("button", { class: "focus-unpin", text: "unpin", onclick: () => togglePin(pinned.subject, pinned.moduleIndex, pinned.chapterIdx) }),
+    ];
 
     wrap.appendChild(el("div", { class: "focus-wrap" }, [
       el("div", { class: "dash-section-title", style: "margin-bottom:12px;", text: "TODAY'S FOCUS" }),
@@ -2613,12 +2638,7 @@ function renderDashboard() {
         ]),
         el("div", { class: "focus-sub", text: `${pinned.subject.toUpperCase()} \u00b7 MODULE ${pinned.moduleIndex} \u00b7 EX-1: ${ex1Done}/${ex1Total} \u00b7 EX-2: ${ex2Done}/${ex2Total}` }),
         pixelBar(agg.done, agg.total, t.accent),
-        el("div", { class: "focus-quick-row" }, [
-          el("button", { class: "focus-goto", text: "+1 EX-1", onclick: () => quickAdd("ex1", ex1Done, ex1Total, 1) }),
-          el("button", { class: "focus-goto", text: "+1 EX-2", onclick: () => quickAdd("ex2", ex2Done, ex2Total, 1) }),
-          el("button", { class: "focus-goto", text: "OPEN CHAPTER \u2192", onclick: () => goChapter(pinned.subject, pinned.moduleIndex, pinned.chapterIdx) }),
-          el("button", { class: "focus-unpin", text: "unpin", onclick: () => togglePin(pinned.subject, pinned.moduleIndex, pinned.chapterIdx) }),
-        ]),
+        el("div", { class: "focus-quick-row" }, quickRow),
       ]),
     ]));
   }
