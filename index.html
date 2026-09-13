@@ -694,6 +694,7 @@ function overallAgg(progress) {
   return { done, total };
 }
 function pct(done, total) { return total === 0 ? 0 : Math.round((done / total) * 100); }
+function pctFloor(done, total) { return total === 0 ? 0 : Math.floor((done / total) * 100); }
 
 /* ---------------- persistence ---------------- */
 const STORAGE_KEY = "bt-module-log-progress-v1";
@@ -1874,7 +1875,7 @@ function render() {
   headerLeft.appendChild(titleBlock);
 
   const overallStat = el("div", { class: "overall-stat" }, [
-    el("div", { class: "overall-pct pixel", text: `${pct(overall.done, overall.total)}%` }),
+    el("div", { class: "overall-pct pixel", text: `${pctFloor(overall.done, overall.total)}%` }),
     el("div", { class: "overall-frac", text: `${overall.done}/${overall.total}` }),
   ]);
 
