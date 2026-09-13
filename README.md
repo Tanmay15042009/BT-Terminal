@@ -1,4 +1,5 @@
-[README.md](https://github.com/user-attachments/files/32159068/README.md)
+[README.md](https://github.com/user-attachments/files/32159135/README.md)
+
 <p align="center">
   <img src="logo.jpg" width="120" alt="BT Terminal logo" />
 </p>
@@ -79,4 +80,11 @@ Issues and pull requests are welcome — since it's a single HTML file, most cha
 
 ## 📄 License
 
-Add your preferred license here (e.g. MIT).
+© 2026 Tanmay Rastogi. All rights reserved.
+
+This code is made available for personal, local viewing and use only.
+You may NOT:
+  - Host this application publicly (as-is or modified)
+  - Redistribute, sublicense, or share copies of this code
+  - Sell or commercially exploit this code or any derivative of it
+Any other use requires prior written permission from the author.
