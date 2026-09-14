@@ -473,7 +473,7 @@
 <div id="app"></div>
 
 <script>
-const DEFAULTS = { ex1: 50, ex2: 50, ex3: 15, ex4: 60 };
+const DEFAULTS = { ex1: 50, ex2: 50 };
 function ch(name, overrides = {}) {
   return { name, ...DEFAULTS, ...overrides };
 }
@@ -481,140 +481,140 @@ function ch(name, overrides = {}) {
 const CURRICULUM = {
   Maths: [
     { chapters: [ // Module 1
-      ch("Basic Mathematic", { ex1: 55, ex2: 55, ex3: 0, ex4: 0 }),
-      ch("Logarithms", { ex1: 30, ex2: 30, ex3: 15, ex4: 30 }),
-      ch("Sequence and Series", { ex1: 90, ex2: 70, ex3: 15, ex4: 60 }),
-      ch("Trigonometric Ratios and Identities", { ex1: 90, ex2: 60, ex3: 15, ex4: 70 }),
-      ch("Trignometric Equations", { ex1: 45, ex2: 50, ex3: 10, ex4: 55 }),
-      ch("Solution of Triangles", { ex1: 50, ex2: 50, ex3: 15, ex4: 65 }),
-      ch("Straight Lines", { ex1: 110, ex2: 110, ex3: 15, ex4: 70 }),
+      ch("Basic Mathematic", { ex1: 55, ex2: 55 }),
+      ch("Logarithms", { ex1: 30, ex2: 30 }),
+      ch("Sequence and Series", { ex1: 90, ex2: 70 }),
+      ch("Trigonometric Ratios and Identities", { ex1: 90, ex2: 60 }),
+      ch("Trignometric Equations", { ex1: 45, ex2: 50 }),
+      ch("Solution of Triangles", { ex1: 50, ex2: 50 }),
+      ch("Straight Lines", { ex1: 110, ex2: 110 }),
     ] },
     { chapters: [ // Module 2
-      ch("Sets and Relations", { ex1: 55, ex2: 10, ex3: 0, ex4: 0 }),
-      ch("Quadratic Equations", { ex1: 80, ex2: 60, ex3: 15, ex4: 70 }),
-      ch("Complex Numbers", { ex1: 90, ex2: 90, ex3: 15, ex4: 80 }),
-      ch("Permutations and Combinations", { ex1: 60, ex2: 80, ex3: 15, ex4: 65 }),
-      ch("Binomial Theorem", { ex1: 60, ex2: 70, ex3: 15, ex4: 65 }),
+      ch("Sets and Relations", { ex1: 55, ex2: 10 }),
+      ch("Quadratic Equations", { ex1: 80, ex2: 60 }),
+      ch("Complex Numbers", { ex1: 90, ex2: 90 }),
+      ch("Permutations and Combinations", { ex1: 60, ex2: 80 }),
+      ch("Binomial Theorem", { ex1: 60, ex2: 70 }),
     ] },
     { chapters: [ // Module 3
-      ch("Circles", { ex1: 85, ex2: 75, ex3: 15, ex4: 65 }),
-      ch("Parabola", { ex1: 70, ex2: 90, ex3: 15, ex4: 64 }),
-      ch("Ellipse", { ex1: 60, ex2: 55, ex3: 15, ex4: 65 }),
-      ch("Hyperbola", { ex1: 70, ex2: 50, ex3: 15, ex4: 70 }),
+      ch("Circles", { ex1: 85, ex2: 75 }),
+      ch("Parabola", { ex1: 70, ex2: 90 }),
+      ch("Ellipse", { ex1: 60, ex2: 55 }),
+      ch("Hyperbola", { ex1: 70, ex2: 50 }),
     ] },
     { chapters: [ // Module 4
-      ch("Indefinite Integration", { ex1: 100, ex2: 80, ex3: 15, ex4: 70 }),
-      ch("Definite Integration", { ex1: 75, ex2: 95, ex3: 15, ex4: 75 }),
-      ch("Area under Curve", { ex1: 60, ex2: 50, ex3: 15, ex4: 50 }),
-      ch("Differential Equations", { ex1: 70, ex2: 70, ex3: 15, ex4: 60 }),
-      ch("Probability", { ex1: 100, ex2: 75, ex3: 15, ex4: 75 }),
-      ch("Statistics", { ex1: 45, ex2: 40, ex3: 10, ex4: 0 }),
+      ch("Indefinite Integration", { ex1: 100, ex2: 80 }),
+      ch("Definite Integration", { ex1: 75, ex2: 95 }),
+      ch("Area under Curve", { ex1: 60, ex2: 50 }),
+      ch("Differential Equations", { ex1: 70, ex2: 70 }),
+      ch("Probability", { ex1: 100, ex2: 75 }),
+      ch("Statistics", { ex1: 45, ex2: 40 }),
     ] },
     { chapters: [ // Module 5
-      ch("Functions", { ex1: 65, ex2: 70, ex3: 15, ex4: 75 }),
-      ch("Inverse Trigonometric Functions", { ex1: 40, ex2: 40, ex3: 15, ex4: 60 }),
-      ch("Limits, Continuity and Differentiability", { ex1: 85, ex2: 80, ex3: 15, ex4: 75 }),
-      ch("Methods of Differentiation", { ex1: 65, ex2: 65, ex3: 15, ex4: 65 }),
-      ch("Application of Differentiation", { ex1: 90, ex2: 75, ex3: 15, ex4: 75 }),
+      ch("Functions", { ex1: 65, ex2: 70 }),
+      ch("Inverse Trigonometric Functions", { ex1: 40, ex2: 40 }),
+      ch("Limits, Continuity and Differentiability", { ex1: 85, ex2: 80 }),
+      ch("Methods of Differentiation", { ex1: 65, ex2: 65 }),
+      ch("Application of Differentiation", { ex1: 90, ex2: 75 }),
     ] },
     { chapters: [ // Module 6
-      ch("Determinants", { ex1: 45, ex2: 50, ex3: 15, ex4: 60 }),
-      ch("Matrices", { ex1: 55, ex2: 55, ex3: 15, ex4: 70 }),
-      ch("Vectors", { ex1: 120, ex2: 70, ex3: 15, ex4: 55 }),
-      ch("3 Dimensional Geometry", { ex1: 70, ex2: 60, ex3: 15, ex4: 70 }),
+      ch("Determinants", { ex1: 45, ex2: 50 }),
+      ch("Matrices", { ex1: 55, ex2: 55 }),
+      ch("Vectors", { ex1: 120, ex2: 70 }),
+      ch("3 Dimensional Geometry", { ex1: 70, ex2: 60 }),
     ] },
   ],
   Physics: [
     { chapters: [ // Module 1
-      ch("Mathematics for Physics", { ex1: 110, ex2: 85, ex3: 15, ex4: 0 }),
-      ch("Units, Dimensions and Error Analysis", { ex1: 70, ex2: 40, ex3: 15, ex4: 35 }),
-      ch("Kinematics", { ex1: 65, ex2: 80, ex3: 15, ex4: 75 }),
-      ch("Newton's Laws of Motion", { ex1: 45, ex2: 45, ex3: 15, ex4: 45 }),
-      ch("Friction", { ex1: 40, ex2: 45, ex3: 10, ex4: 65 }),
-      ch("Circular Motion", { ex1: 35, ex2: 30, ex3: 10, ex4: 45 }),
+      ch("Mathematics for Physics", { ex1: 110, ex2: 85 }),
+      ch("Units, Dimensions and Error Analysis", { ex1: 70, ex2: 40 }),
+      ch("Kinematics", { ex1: 65, ex2: 80 }),
+      ch("Newton's Laws of Motion", { ex1: 45, ex2: 45 }),
+      ch("Friction", { ex1: 40, ex2: 45 }),
+      ch("Circular Motion", { ex1: 35, ex2: 30 }),
     ] },
     { chapters: [ // Module 2
-      ch("Work, Power, Energy", { ex1: 45, ex2: 45, ex3: 15, ex4: 60 }),
-      ch("Center of Mass & Conservation of Linear Momentum", { ex1: 35, ex2: 50, ex3: 15, ex4: 60 }),
-      ch("Rotational Dynamics", { ex1: 65, ex2: 65, ex3: 15, ex4: 60 }),
-      ch("Gravitation", { ex1: 45, ex2: 40, ex3: 15, ex4: 50 }),
-      ch("Fluids", { ex1: 60, ex2: 40, ex3: 15, ex4: 45 }),
-      ch("Simple Harmonic Motion", { ex1: 70, ex2: 60, ex3: 15, ex4: 65 }),
+      ch("Work, Power, Energy", { ex1: 45, ex2: 45 }),
+      ch("Center of Mass & Conservation of Linear Momentum", { ex1: 35, ex2: 50 }),
+      ch("Rotational Dynamics", { ex1: 65, ex2: 65 }),
+      ch("Gravitation", { ex1: 45, ex2: 40 }),
+      ch("Fluids", { ex1: 60, ex2: 40 }),
+      ch("Simple Harmonic Motion", { ex1: 70, ex2: 60 }),
     ] },
     { chapters: [ // Module 3
-      ch("Wave Motion", { ex1: 75, ex2: 65, ex3: 15, ex4: 70 }),
-      ch("Mechanical Propertie of Matter", { ex1: 55, ex2: 50, ex3: 15, ex4: 50 }),
-      ch("Thermal Expansion and Calorimetry", { ex1: 45, ex2: 30, ex3: 10, ex4: 35 }),
-      ch("Heat Transfer", { ex1: 35, ex2: 50, ex3: 10, ex4: 45 }),
-      ch("Kinetic Theory of Gases", { ex1: 60, ex2: 30, ex3: 10, ex4: 30 }),
-      ch("Thermodynamics", { ex1: 55, ex2: 50, ex3: 15, ex4: 50 }),
+      ch("Wave Motion", { ex1: 75, ex2: 65 }),
+      ch("Mechanical Propertie of Matter", { ex1: 55, ex2: 50 }),
+      ch("Thermal Expansion and Calorimetry", { ex1: 45, ex2: 30 }),
+      ch("Heat Transfer", { ex1: 35, ex2: 50 }),
+      ch("Kinetic Theory of Gases", { ex1: 60, ex2: 30 }),
+      ch("Thermodynamics", { ex1: 55, ex2: 50 }),
     ] },
     { chapters: [ // Module 4
-      ch("Electrostatics", { ex1: 60, ex2: 65, ex3: 15, ex4: 60 }),
-      ch("Current Electricity", { ex1: 55, ex2: 55, ex3: 15, ex4: 60 }),
-      ch("Capacitance", { ex1: 65, ex2: 60, ex3: 15, ex4: 50 }),
+      ch("Electrostatics", { ex1: 60, ex2: 65 }),
+      ch("Current Electricity", { ex1: 55, ex2: 55 }),
+      ch("Capacitance", { ex1: 65, ex2: 60 }),
     ] },
     { chapters: [ // Module 5
-      ch("Magnetic Field", { ex1: 50, ex2: 60, ex3: 15, ex4: 60 }),
-      ch("Magnetism and Matter", { ex1: 40, ex2: 25, ex3: 10, ex4: 0 }),
-      ch("Electromagnetic Induction", { ex1: 55, ex2: 65, ex3: 15, ex4: 55 }),
-      ch("Alternating Current", { ex1: 55, ex2: 40, ex3: 15, ex4: 55 }),
-      ch("Electromagnetic Waves", { ex1: 50, ex2: 35, ex3: 10, ex4: 0 }),
+      ch("Magnetic Field", { ex1: 50, ex2: 60 }),
+      ch("Magnetism and Matter", { ex1: 40, ex2: 25 }),
+      ch("Electromagnetic Induction", { ex1: 55, ex2: 65 }),
+      ch("Alternating Current", { ex1: 55, ex2: 40 }),
+      ch("Electromagnetic Waves", { ex1: 50, ex2: 35 }),
     ] },
     { chapters: [ // Module 6
-      ch("Geometrical Optics", { ex1: 55, ex2: 85, ex3: 15, ex4: 85 }),
-      ch("Wave Optics", { ex1: 65, ex2: 50, ex3: 15, ex4: 50 }),
-      ch("Modern Physics", { ex1: 80, ex2: 85, ex3: 15, ex4: 80 }),
-      ch("Semiconductor Devices", { ex1: 45, ex2: 30, ex3: 10, ex4: 0 }),
+      ch("Geometrical Optics", { ex1: 55, ex2: 85 }),
+      ch("Wave Optics", { ex1: 65, ex2: 50 }),
+      ch("Modern Physics", { ex1: 80, ex2: 85 }),
+      ch("Semiconductor Devices", { ex1: 45, ex2: 30 }),
     ] },
   ],
   Chemistry: [
     { chapters: [ // Module 1
-      ch("Mole Concept", { ex1: 70, ex2: 50, ex3: 15, ex4: 60 }),
-      ch("Atomic Structure", { ex1: 70, ex2: 55, ex3: 15, ex4: 70 }),
-      ch("Periodic Properties", { ex1: 60, ex2: 50, ex3: 15, ex4: 60 }),
-      ch("Chemical Bonding", { ex1: 70, ex2: 55, ex3: 15, ex4: 70 }),
-      ch("Redox Reactions", { ex1: 55, ex2: 45, ex3: 15, ex4: 50 }),
-      ch("Gaseous State", { ex1: 50, ex2: 60, ex3: 15, ex4: 60 }),
+      ch("Mole Concept", { ex1: 70, ex2: 50 }),
+      ch("Atomic Structure", { ex1: 70, ex2: 55 }),
+      ch("Periodic Properties", { ex1: 60, ex2: 50 }),
+      ch("Chemical Bonding", { ex1: 70, ex2: 55 }),
+      ch("Redox Reactions", { ex1: 55, ex2: 45 }),
+      ch("Gaseous State", { ex1: 50, ex2: 60 }),
     ] },
     { chapters: [ // Module 2
-      ch("Thermodynamics", { ex1: 70, ex2: 75, ex3: 15, ex4: 65 }),
-      ch("Chemical Equilibrium", { ex1: 55, ex2: 50, ex3: 15, ex4: 55 }),
-      ch("Ionic Equilibrium", { ex1: 60, ex2: 55, ex3: 15, ex4: 65 }),
-      ch("IUPAC Nomenclature", { ex1: 60, ex2: 55, ex3: 15, ex4: 55 }),
-      ch("Isomerism", { ex1: 60, ex2: 50, ex3: 15, ex4: 75 }),
+      ch("Thermodynamics", { ex1: 70, ex2: 75 }),
+      ch("Chemical Equilibrium", { ex1: 55, ex2: 50 }),
+      ch("Ionic Equilibrium", { ex1: 60, ex2: 55 }),
+      ch("IUPAC Nomenclature", { ex1: 60, ex2: 55 }),
+      ch("Isomerism", { ex1: 60, ex2: 50 }),
     ] },
     { chapters: [ // Module 3
-      ch("General Organic Chemistry", { ex1: 80, ex2: 65, ex3: 15, ex4: 70 }),
-      ch("Hydrocarbons", { ex1: 60, ex2: 50, ex3: 15, ex4: 65 }),
-      ch("Aromatic Compounds", { ex1: 40, ex2: 40, ex3: 10, ex4: 50 }),
-      ch("Environmental Chemistry", { ex1: 55, ex2: 10, ex3: 50, ex4: 0 }),
-      ch("Hydrogen and Its Compounds", { ex1: 40, ex2: 30, ex3: 8, ex4: 40 }),
-      ch("S-Block Elements", { ex1: 50, ex2: 50, ex3: 10, ex4: 55 }),
-      ch("P-Block (Part-I)", { ex1: 70, ex2: 50, ex3: 15, ex4: 65 }),
+      ch("General Organic Chemistry", { ex1: 80, ex2: 65 }),
+      ch("Hydrocarbons", { ex1: 60, ex2: 50 }),
+      ch("Aromatic Compounds", { ex1: 40, ex2: 40 }),
+      ch("Environmental Chemistry", { ex1: 55, ex2: 10 }),
+      ch("Hydrogen and Its Compounds", { ex1: 40, ex2: 30 }),
+      ch("S-Block Elements", { ex1: 50, ex2: 50 }),
+      ch("P-Block (Part-I)", { ex1: 70, ex2: 50 }),
     ] },
     { chapters: [ // Module 4
-      ch("Solid State", { ex1: 55, ex2: 55, ex3: 15, ex4: 55 }),
-      ch("Solutions & Colligative Properties", { ex1: 60, ex2: 50, ex3: 15, ex4: 55 }),
-      ch("Electrochemistry", { ex1: 65, ex2: 60, ex3: 15, ex4: 75 }),
-      ch("Chemical Kinetics", { ex1: 70, ex2: 55, ex3: 15, ex4: 65 }),
-      ch("Surface Chemistry", { ex1: 50, ex2: 45, ex3: 15, ex4: 50 }),
-      ch("Alkyl and Aryl Halides", { ex1: 70, ex2: 60, ex3: 15, ex4: 65 }),
+      ch("Solid State", { ex1: 55, ex2: 55 }),
+      ch("Solutions & Colligative Properties", { ex1: 60, ex2: 50 }),
+      ch("Electrochemistry", { ex1: 65, ex2: 60 }),
+      ch("Chemical Kinetics", { ex1: 70, ex2: 55 }),
+      ch("Surface Chemistry", { ex1: 50, ex2: 45 }),
+      ch("Alkyl and Aryl Halides", { ex1: 70, ex2: 60 }),
     ] },
     { chapters: [ // Module 5
-      ch("Alcohols, Ethers and Phenols", { ex1: 60, ex2: 60, ex3: 15, ex4: 70 }),
-      ch("Aldehydes and Ketones", { ex1: 65, ex2: 60, ex3: 15, ex4: 75 }),
-      ch("Carboxylic Acid & its Derivatives", { ex1: 60, ex2: 55, ex3: 15, ex4: 75 }),
-      ch("Nitrogen Containing Compounds", { ex1: 50, ex2: 45, ex3: 15, ex4: 75 }),
-      ch("Biomolecules and Polymers", { ex1: 65, ex2: 50, ex3: 15, ex4: 70 }),
+      ch("Alcohols, Ethers and Phenols", { ex1: 60, ex2: 60 }),
+      ch("Aldehydes and Ketones", { ex1: 65, ex2: 60 }),
+      ch("Carboxylic Acid & its Derivatives", { ex1: 60, ex2: 55 }),
+      ch("Nitrogen Containing Compounds", { ex1: 50, ex2: 45 }),
+      ch("Biomolecules and Polymers", { ex1: 65, ex2: 50 }),
     ] },
     { chapters: [ // Module 6
-      ch("Principles of Practical Chemistry & Chemistry in Everyday Life", { ex1: 75, ex2: 75, ex3: 15, ex4: 75 }),
-      ch("P-Block (Part-II)", { ex1: 100, ex2: 100, ex3: 15, ex4: 80 }),
-      ch("Chemistry of d & f-block", { ex1: 65, ex2: 60, ex3: 15, ex4: 50 }),
-      ch("Metallurgy", { ex1: 55, ex2: 50, ex3: 15, ex4: 60 }),
-      ch("Coordination Compounds", { ex1: 65, ex2: 65, ex3: 15, ex4: 70 }),
-      ch("Qualitative Analysis", { ex1: 70, ex2: 70, ex3: 15, ex4: 79 }),
+      ch("Principles of Practical Chemistry & Chemistry in Everyday Life", { ex1: 75, ex2: 75 }),
+      ch("P-Block (Part-II)", { ex1: 100, ex2: 100 }),
+      ch("Chemistry of d & f-block", { ex1: 65, ex2: 60 }),
+      ch("Metallurgy", { ex1: 55, ex2: 50 }),
+      ch("Coordination Compounds", { ex1: 65, ex2: 65 }),
+      ch("Qualitative Analysis", { ex1: 70, ex2: 70 }),
     ] },
   ],
 };
@@ -624,8 +624,6 @@ const SUBJECTS = Object.keys(CURRICULUM);
 const EXERCISE_META = [
   { key: "ex1", label: "Ex-1" },
   { key: "ex2", label: "Ex-2" },
-  { key: "ex3", label: "Ex-3" },
-  { key: "ex4", label: "Ex-4" },
 ];
 
 const THEME = {
@@ -656,7 +654,7 @@ function makeEmptyProgress() {
       p[s][m] = {};
       mod.chapters.forEach((_, ci) => {
         const c = ci + 1;
-        p[s][m][c] = { ex1: 0, ex2: 0, ex3: 0, ex4: 0 };
+        p[s][m][c] = { ex1: 0, ex2: 0 };
       });
     });
   });
@@ -748,7 +746,7 @@ function saveProgress() {
   safeLocalStorageSet(STORAGE_KEY, JSON.stringify(state.progress));
 }
 
-/* ---------------- PYQ counters (separate from ex1-4; never counted in
+/* ---------------- PYQ counters (separate from ex1-2; never counted in
    chapter/module/subject/overall completion %, but DOES count toward daily
    stats via the same history log) ---------------- */
 const PYQ_KEY = "bt-ledger-pyq-v1";
